@@ -1,0 +1,3 @@
+# Project exclude paths
+/mermaid-pilot-common/target/
+/mermaid-pilot-k8s/target/
