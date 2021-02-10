@@ -17,6 +17,7 @@
     <module>mermaid-pilot-common</module>
     <module>mermaid-pilot-platform</module>
     <module>mermaid-pilot-k8s</module>
+      <module>mermaid-pilot-agent</module>
   </modules>
 
   <name>Maven</name>
