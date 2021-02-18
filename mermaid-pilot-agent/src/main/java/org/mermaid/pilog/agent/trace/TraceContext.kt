@@ -1,5 +1,7 @@
 package org.mermaid.pilog.agent.trace
 
+import java.util.*
+
 /**
  * description: TODO
  * copyright: Copyright (c) 2018-2021
@@ -9,11 +11,16 @@ package org.mermaid.pilog.agent.trace
  * @version 1.0
  */
 class TraceContext {
-    val traceLocal = ThreadLocal<String>()
-
-    fun clear() = traceLocal.remove()
-
-    fun getLinkId() = traceLocal.get()
-
-    fun setLinkId(linkId:String) = traceLocal.set(linkId)
+    companion object {
+        val traceLocal = ThreadLocal<String>()
+    }
 }
+fun clear() = TraceContext.traceLocal.remove()
+
+fun getLinkId() = TraceContext.traceLocal.get()
+
+fun setLinkId(linkId:String) = TraceContext.traceLocal.set(linkId)
+
+fun generateLinkId() = UUID.randomUUID().toString()
+
+fun generateSpanId() = UUID.randomUUID().toString()

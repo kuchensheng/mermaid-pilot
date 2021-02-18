@@ -7,7 +7,7 @@ import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.utility.JavaModule
-import org.mermaid.pilog.agent.trace.PilogAdvice
+import org.mermaid.pilog.agent.trace.TraceHandler
 import java.lang.instrument.Instrumentation
 
 /**
@@ -24,7 +24,7 @@ class PilotAgent {
         fun premain(args: String?, inst: Instrumentation) {
             val transformer  = AgentBuilder.Transformer { builder, _, _, _ ->
                 return@Transformer builder.visit(
-                        Advice.to(PilogAdvice::class.java)
+                        Advice.to(TraceHandler::class.java)
                                 .on(ElementMatchers.isMethod<MethodDescription>()
                                         .and(ElementMatchers.any<Any>())
                                         .and(ElementMatchers.not(ElementMatchers.nameStartsWith("main")))))
@@ -45,7 +45,7 @@ class PilotAgent {
                 }
 
                 override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
-                    //TODO("Not yet implemented")
+                    println("方法执行异常,p0 is $p0,classLoader is $p1,Throwable is $p4")
                 }
 
                 override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
