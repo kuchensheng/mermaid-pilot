@@ -2,12 +2,13 @@ package org.mermaid.pilog.agent
 
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
-import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.utility.JavaModule
-import org.mermaid.pilog.agent.trace.TraceHandler
+import org.mermaid.pilog.agent.handler.loadHandler
+import org.mermaid.pilog.agent.plugin.factory.loadPlugin
+import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
 
 /**
@@ -20,48 +21,49 @@ import java.lang.instrument.Instrumentation
  */
 class PilotAgent {
     companion object {
+
         @JvmStatic
         fun premain(args: String?, inst: Instrumentation) {
-            val transformer  = AgentBuilder.Transformer { builder, _, _, _ ->
-                return@Transformer builder.visit(
-                        Advice.to(TraceHandler::class.java)
-                                .on(ElementMatchers.isMethod<MethodDescription>()
-                                        .and(ElementMatchers.any<Any>())
-                                        .and(ElementMatchers.not(ElementMatchers.nameStartsWith("main")))))
-            }
-
-
-            val listener = object : AgentBuilder.Listener {
-                override fun onDiscovery(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
-                    //TODO("Not yet implemented")
-                }
-
-                override fun onTransformation(typeDescription: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: DynamicType?) {
-                    println("onTransformation:$typeDescription")
-                }
-
-                override fun onIgnored(p0: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
-                    //TODO("Not yet implemented")
-                }
-
-                override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
-                    println("方法执行异常,p0 is $p0,classLoader is $p1,Throwable is $p4")
-                }
-
-                override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
-                    //("Not yet implemented")
-                }
-            }
-
-            AgentBuilder.Default().type(ElementMatchers.any())
-                    .transform(transformer)
+            println("基于javaagent链路跟踪PIVOT信息收集器")
+            println("=================================================================")
+            val listener = builderListener()
+            loadPlugin()
+            loadHandler()
+            val agentBuilder = AgentBuilder.Default()
+                    .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                     .with(listener)
-                    .installOn(inst)
+                    .disableClassFormatChanges()
+                    .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
+            pluginGroup.forEach { p ->
+                p.buildInterceptPoint().forEach {
+                    AgentBuilder.Transformer { builder, _, _, _ ->
+                        return@Transformer builder.visit(Advice.to(p.interceptorAdviceClass()).on(it.buildMethodsMatcher()))
+                    }.run { agentBuilder.type(it.buildTypesMatcher()).transform(this) }
+                }
+            }
+            agentBuilder.installOn(inst)
         }
 
-        @JvmStatic
-        fun premain(args: String?) {
+        private fun builderListener(): AgentBuilder.Listener? = object : AgentBuilder.Listener {
+            override fun onDiscovery(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
+                //TODO("Not yet implemented")
+            }
 
+            override fun onTransformation(typeDescription: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: DynamicType?) {
+                println("onTransformation:$typeDescription")
+            }
+
+            override fun onIgnored(p0: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
+                println("方法执行异常,p0 is $p0,classLoader is $p1,Throwable is $p4")
+            }
+
+            override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
+                //("Not yet implemented")
+            }
         }
     }
 }
