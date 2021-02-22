@@ -20,6 +20,7 @@ fun getHandler(clazz: Class<out IHandler>) : IHandler = handlerMap[clazz.name] ?
 
 fun loadHandler() {
     HandlerName.values().forEach {
+        println("加载handler:${it.clazz?.name}")
         it.clazz?.run { loadHandler(this) }
 //        it.className?.run { loadHandler(this) }
     }

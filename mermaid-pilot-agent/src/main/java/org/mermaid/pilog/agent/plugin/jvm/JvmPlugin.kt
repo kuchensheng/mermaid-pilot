@@ -18,7 +18,7 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
  * @date 2021/2/1817:46
  * @version 1.0
  */
-class JvmPlugin : IPlugin {
+object JvmPlugin : IPlugin {
 
     override fun getName(): String? = PluginName.JVMPLUGIN.code
 
@@ -26,7 +26,7 @@ class JvmPlugin : IPlugin {
         return arrayOf(
                 object : InterceptPoint {
                     override fun buildTypesMatcher(): ElementMatcher<TypeDescription> {
-                        return ElementMatchers.nameStartsWith("com.isyscore")
+                        return ElementMatchers.nameStartsWith<TypeDescription>("com.isyscore")
                     }
 
                     override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> {

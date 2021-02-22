@@ -1,14 +1,12 @@
 package org.mermaid.pilog.agent.advice
 
 import net.bytebuddy.asm.Advice
-import net.bytebuddy.implementation.bytecode.assign.Assigner
-import org.mermaid.pilog.agent.handler.ServletHandler
+import org.mermaid.pilog.agent.handler.SpringWebHandler
 import org.mermaid.pilog.agent.handler.getHandler
-import java.lang.Exception
 import java.lang.reflect.Method
 
 /**
- * description: TODO
+ * description: Spring Controller / RestController 方法处理前后的通知
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜
@@ -20,20 +18,16 @@ class SpringWebAdvice {
         @Advice.OnMethodEnter
         @JvmStatic
         fun enter(@Advice.Origin("#t") className: String,
-                  @Advice.Origin method: Method,
-                  @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
-                  @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
-            println("执行方法：$className:${method.name}")
-            getHandler(ServletHandler::class.java).before(className,method, arrayOf(req,resp))
+                  @Advice.Origin method: Method) {
+            getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
         }
 
-        @Advice.OnMethodExit(onThrowable = Exception::class)
+        @Advice.OnMethodExit
         @JvmStatic
         fun exit(@Advice.Origin("#t") className: String,
                  @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?,
-                 @Advice.Thrown throwable: Throwable) {
-            getHandler(ServletHandler::class.java).after(className,method,args,null,throwable)
+                 @Advice.AllArguments args: Array<*>?) {
+            getHandler(SpringWebHandler::class.java).after(className,method,args,null,null)
         }
     }
 }

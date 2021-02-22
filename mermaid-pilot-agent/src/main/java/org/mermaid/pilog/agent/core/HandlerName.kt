@@ -2,6 +2,7 @@ package org.mermaid.pilog.agent.core
 
 import org.mermaid.pilog.agent.handler.IHandler
 import org.mermaid.pilog.agent.handler.ServletHandler
+import org.mermaid.pilog.agent.handler.SpringWebHandler
 
 /**
  * description: TODO
@@ -14,6 +15,7 @@ import org.mermaid.pilog.agent.handler.ServletHandler
 enum class HandlerName {
 
     SERVLET("servlet",ServletHandler::class.java,""),
+    SPRINTWEB("springweb",SpringWebHandler::class.java,"")
     ;
     var code : String = ""
     var clazz: Class<out IHandler>? = null

@@ -17,20 +17,21 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
  * @date 2021/2/2010:35
  * @version 1.0
  */
-class SpringWebPlugin : IPlugin {
+val restCollection: Class<out Annotation> = Class.forName("org.springframework.web.bind.annotation.RestController") as Class<out Annotation>
+val controller : Class<out Annotation> = Class.forName("org.springframework.stereotype.Controller") as Class<out Annotation>
+object SpringWebPlugin : IPlugin {
     override fun getName(): String? = PluginName.SPRINGWEB.code
-    val restCollection: Class<out Annotation> = Class.forName("org.springframework.web.bind.annotation.RestController") as Class<out Annotation>
-    val controller : Class<out Annotation> = Class.forName("org.springframework.stereotype.Controller") as Class<out Annotation>
+
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription>? = ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection)
-                .or(ElementMatchers.isAnnotatedWith<TypeDescription>(controller))
+                .or(ElementMatchers.isAnnotatedWith(controller))
 
-        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription>? = ElementMatchers.isMethod<MethodDescription>()
-                .and(ElementMatchers.isPublic<MethodDescription>())
+        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription>? = ElementMatchers.not(ElementMatchers.isConstructor())
+                .and(ElementMatchers.isMethod<MethodDescription>()
+                        .and(ElementMatchers.isPublic()))
     })
 
     override fun interceptorAdviceClass(): Class<*>  {
-        println("获取通知类SpringWebAdvice")
         return SpringWebAdvice::class.java
     }
 }

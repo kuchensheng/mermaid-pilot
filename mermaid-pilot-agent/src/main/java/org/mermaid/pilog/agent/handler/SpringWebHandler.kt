@@ -30,11 +30,9 @@ class SpringWebHandler : IHandler {
         }
     }.run { appName }
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
-        println("执行方法：${method.name}")
         val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
-        val traceId = request?.getHeader(HEADER_TRACE_ID)?: generateTraceId()
+        request?.getHeader(HEADER_TRACE_ID)?: generateTraceId().run { setTraceId(this) }
         val rpcId =  request?.getHeader(HEADER_SPAN_ID)
-        setTraceId(traceId)
         val parameterInfo = hashMapOf<String,Any?>()
         if (!args.isNullOrEmpty()) {
             method.parameters?.indices?.forEach {
@@ -55,7 +53,7 @@ class SpringWebHandler : IHandler {
         }
     }
 
-    override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable) {
+    override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
         val response = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
@@ -64,7 +62,7 @@ class SpringWebHandler : IHandler {
             response?.setHeader(HEADER_SPAN_ID,spanId)
         }.run {
             //todo 收集span信息并上传到服务端
-            println(toString())
+            println("className:${className},methodName:${method.name}执行完毕，进行信息收集：${toString()}")
         }
     }
 }

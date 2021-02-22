@@ -14,16 +14,16 @@ import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
  * @version 1.0
  */
 enum class PluginName {
-    JVMPLUGIN("jvm",JvmPlugin::class.java),
-    SERVLET("servlet",ServletPlugin::class.java),
-    SPRINGWEB("springweb",SpringWebPlugin::class.java)
+    JVMPLUGIN("jvm",JvmPlugin),
+    SERVLET("servlet",ServletPlugin),
+    SPRINGWEB("springweb",SpringWebPlugin)
     ;
 
     var code: String
-    var clazz: Class<out IPlugin>
+    var instance: IPlugin
 
-    constructor(code:String,clazz: Class<out IPlugin>) {
-        this.clazz = clazz
+    constructor(code:String,instance: IPlugin) {
+        this.instance = instance
         this.code = code
     }
 }

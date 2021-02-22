@@ -21,5 +21,5 @@ interface IHandler {
     /**
      * 方法调用后处理
      */
-    fun after(className: String?,method: Method,array: Array<*>?,result: Any?,thrown: Throwable)
+    fun after(className: String?,method: Method,array: Array<*>?,result: Any?,thrown: Throwable?)
 }

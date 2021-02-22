@@ -58,14 +58,14 @@ class ServletHandler : IHandler {
         }
     }
 
-    override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable) {
+    override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
-        val requestAttribute = RequestContextHolder.getRequestAttributes()
-        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
+//        val requestAttribute = RequestContextHolder.getRequestAttributes()
+//        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
         org.mermaid.pilog.agent.model.getCurrentSpan()?.apply {
-            response?.setHeader(HEADER_TRACE_ID,traceId)
-            response?.setHeader(HEADER_SPAN_ID,spanId)
+//            response?.setHeader(HEADER_TRACE_ID,traceId)
+//            response?.setHeader(HEADER_SPAN_ID,spanId)
         }.run {
             //todo 收集span信息并上传到服务端
             println(toString())

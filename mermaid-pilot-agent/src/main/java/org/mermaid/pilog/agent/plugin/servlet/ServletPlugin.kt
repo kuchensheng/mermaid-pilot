@@ -8,6 +8,8 @@ import org.mermaid.pilog.agent.advice.ServletAdvice
 import org.mermaid.pilog.agent.core.PluginName
 import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.InterceptPoint
+import org.mermaid.pilog.agent.plugin.springweb.controller
+import org.mermaid.pilog.agent.plugin.springweb.restCollection
 
 /**
  * description: TODO
@@ -17,7 +19,7 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
  * @date 2021/2/1910:40
  * @version 1.0
  */
-class ServletPlugin : IPlugin {
+object ServletPlugin : IPlugin {
     val httpServletName = "javax.servlet.http.HttpServlet"
     override fun getName(): String = PluginName.SERVLET.code
 
@@ -25,12 +27,13 @@ class ServletPlugin : IPlugin {
         //todo 缺少一步：排除不想拦截的servlet
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named(httpServletName))
                 .and(ElementMatchers.not(ElementMatchers.isAbstract()))
+                .and(ElementMatchers.not(ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection).or(ElementMatchers.isAnnotatedWith<TypeDescription>(controller))))
 
         override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
-                .and(ElementMatchers.takesArguments(2))
-                .and(ElementMatchers.takesArgument(0, ElementMatchers.named("javax.servlet.http.HttpServletRequest")))
-                .and(ElementMatchers.takesArgument(1, ElementMatchers.named("javax.servlet.http.HttpServletResponse")))
-                .and(ElementMatchers.nameStartsWith("do"))
+                .and(ElementMatchers.takesArguments<MethodDescription>(2)
+                        .and(ElementMatchers.takesArgument(0, ElementMatchers.named("javax.servlet.http.HttpServletRequest")))
+                        .and(ElementMatchers.takesArgument(1, ElementMatchers.named("javax.servlet.http.HttpServletResponse")))
+                        .and(ElementMatchers.nameStartsWith("do")))
     })
 
     override fun interceptorAdviceClass(): Class<*> = ServletAdvice::class.java
