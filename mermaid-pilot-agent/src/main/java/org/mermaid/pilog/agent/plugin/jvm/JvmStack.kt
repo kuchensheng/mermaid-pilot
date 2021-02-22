@@ -15,11 +15,11 @@ fun printMemoryInfo() {
     val memory = ManagementFactory.getMemoryMXBean()
     val headMemory = memory.heapMemoryUsage
 
-    val info = "\ninit:${headMemory.init}MB\tmax:${headMemory.max}MB\tused:${headMemory.used}MB\tcommited:${headMemory.committed}MB\tuse rate:${headMemory.used * 100 / headMemory.committed}%"
+    val info = "\ninit:${headMemory.init / 1024 /1024 }MB\tmax:${headMemory.max / 1024 /1024 }MB\tused:${headMemory.used / 1024 /1024 }MB\tcommited:${headMemory.committed  / 1024 /1024}MB\tuse rate:${headMemory.used * 100 / headMemory.committed}%"
     print(info)
 
     val nonHeadMemory = memory.nonHeapMemoryUsage
-    val nInfo = "init:${nonHeadMemory.init}MB\tmax:${nonHeadMemory.max}MB\tused:${nonHeadMemory.used}MB\tcommited:${nonHeadMemory.committed}MB\tuse rate:${nonHeadMemory.used * 100 / headMemory.committed}%"
+    val nInfo = "init:${nonHeadMemory.init  / 1024 /1024 }MB\tmax:${nonHeadMemory.max / 1024 /1024 }MB\tused:${nonHeadMemory.used / 1024 /1024 }MB\tcommited:${nonHeadMemory.committed  / 1024 /1024}MB\tuse rate:${nonHeadMemory.used * 100 / headMemory.committed}%"
     println(nInfo)
 }
 

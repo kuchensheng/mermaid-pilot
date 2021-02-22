@@ -21,7 +21,7 @@ enum class PluginName {
     SERVLET("servlet",ServletPlugin),
     HTTP3PLUGIN("http3",HttpClient3Plugin),
     HTTP4PLUGIN("http4", HttpClient4Plugin),
-    PROCESS("process",ProcessPlugin)
+//    PROCESS("process",ProcessPlugin)
 //    SPRINGWEB("springweb",SpringWebPlugin)
     ;
 
