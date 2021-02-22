@@ -9,6 +9,7 @@ import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.utility.JavaModule
 import org.mermaid.pilog.agent.advice.SpringWebAdvice
+import org.mermaid.pilog.agent.common.blockingQueue
 import org.mermaid.pilog.agent.handler.loadHandler
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
@@ -31,6 +32,7 @@ class PilotAgent {
             val listener = builderListener()
             loadPlugin()
             loadHandler()
+            initialize()
             var agentBuilder : AgentBuilder = AgentBuilder.Default().with(listener).disableClassFormatChanges()
                     .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
             pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
@@ -60,6 +62,21 @@ class PilotAgent {
             override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
                 //("Not yet implemented")
             }
+        }
+
+        private fun initialize() {
+            Thread {
+                while (true) {
+                    if (blockingQueue.isNotEmpty()) {
+                        //将span信息推送到服务端
+                        blockingQueue.take().run {
+                            println("将信息推送到服务端：${toString()}")
+                        }
+                    } else {
+                        Thread.sleep(1000)
+                    }
+                }
+            }.start()
         }
     }
 }

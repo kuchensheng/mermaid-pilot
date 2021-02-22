@@ -2,12 +2,14 @@ package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.getTraceId
+import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.springframework.http.HttpRequest
 import java.lang.reflect.Method
+import java.time.Duration
 import java.time.LocalDateTime
 
 /**
@@ -41,6 +43,8 @@ class HttpClientHandler : IHandler {
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        println("className:${className},methodName:${method.name},执行完毕，进行信息收集：${getCurrentSpan().toString()}")
+        getCurrentSpan()?.let { it.endTime = LocalDateTime.now()
+            it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
+            produce(it) }
     }
 }

@@ -3,6 +3,8 @@ package org.mermaid.pilog.agent.common
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import java.util.*
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * description: span信息管理
@@ -13,11 +15,17 @@ import java.util.*
  * @version 1.0
  */
 val threadLocalSpan = ThreadLocal<Stack<Span>>()
+val blockingQueue = LinkedBlockingQueue<Span>(10240)
 
 fun createEntrySpan(type: HandlerType?,rpcId: String?) = createSpan(type,rpcId)
+
+fun produce(span: Span) = blockingQueue.add(span)
+
+fun consume() : Span? = blockingQueue.take()
 
 private fun createSpan(type: HandlerType?,rpcId: String?) {
     var stack = threadLocalSpan.get()
     if (stack.isNullOrEmpty()) threadLocalSpan.set(Stack<Span>().apply { stack = this })
     if (stack.isEmpty()){}
 }
+

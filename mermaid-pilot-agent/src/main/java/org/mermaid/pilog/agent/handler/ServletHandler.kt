@@ -2,10 +2,12 @@ package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.generateTraceId
+import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.common.setTraceId
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
+import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.slf4j.LoggerFactory
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
@@ -13,6 +15,7 @@ import org.springframework.http.HttpRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.lang.reflect.Method
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -73,12 +76,10 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        org.mermaid.pilog.agent.model.getCurrentSpan()?.apply {
-//            response?.setHeader(HEADER_TRACE_ID,traceId)
-//            response?.setHeader(HEADER_SPAN_ID,spanId)
-        }.run {
-            //todo 收集span信息并上传到服务端
-            println("className:${className},methodName:${method.name},执行完毕，进行信息收集：${toString()}")
+        getCurrentSpan()?.let {
+            it.endTime = LocalDateTime.now()
+            it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
+            produce(it)
         }
     }
 }
