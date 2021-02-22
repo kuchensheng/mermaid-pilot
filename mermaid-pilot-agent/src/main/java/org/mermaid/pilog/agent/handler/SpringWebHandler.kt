@@ -62,7 +62,7 @@ class SpringWebHandler : IHandler {
             response?.setHeader(HEADER_SPAN_ID,spanId)
         }.run {
             //todo 收集span信息并上传到服务端
-            println("className:${className},methodName:${method.name}执行完毕，进行信息收集：${toString()}")
+            println("className:${className},methodName:${method.name},执行完毕，进行信息收集：${toString()}")
         }
     }
 }

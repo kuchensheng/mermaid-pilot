@@ -23,7 +23,6 @@ class ServletAdvice {
                   @Advice.Origin method: Method,
                   @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
                   @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
-            println("执行方法：$className:${method.name}")
             getHandler(ServletHandler::class.java).before(className,method, arrayOf(req,resp))
         }
 
@@ -32,7 +31,7 @@ class ServletAdvice {
         fun exit(@Advice.Origin("#t") className: String,
                  @Advice.Origin method: Method,
                  @Advice.AllArguments args: Array<*>?,
-                 @Advice.Thrown throwable: Throwable) {
+                 @Advice.Thrown throwable: Throwable?) {
             getHandler(ServletHandler::class.java).after(className,method,args,null,throwable)
         }
     }

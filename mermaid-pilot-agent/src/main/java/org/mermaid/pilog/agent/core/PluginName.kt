@@ -16,7 +16,7 @@ import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
 enum class PluginName {
     JVMPLUGIN("jvm",JvmPlugin),
     SERVLET("servlet",ServletPlugin),
-    SPRINGWEB("springweb",SpringWebPlugin)
+//    SPRINGWEB("springweb",SpringWebPlugin)
     ;
 
     var code: String

@@ -26,7 +26,7 @@ private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
  * 获取mac地址
  * @return mac
  */
-private fun getMac()  =NetworkInterface.getNetworkInterfaces().run { StringBuilder().apply { while (hasMoreElements()) { nextElement().hardwareAddress?.let { it.forEach {b-> append(hexByte(b)) } } } }.toString() }
+private fun getMac()  =NetworkInterface.getNetworkInterfaces().run { StringBuilder().apply { while (hasMoreElements()) { nextElement().hardwareAddress?.let { it?.forEach {b-> append(hexByte(b)) } } } }.toString() }
 
 /**
  * 获取进程Id
@@ -38,7 +38,7 @@ private fun getProcessId() = (ManagementFactory.getRuntimeMXBean().name.split("@
  * 生成traceId
  * 生成规则：循环自增seq + 产生ID时间 + 机器MAC + 当前进程号 + 当前线程号
  */
-fun generateTraceId() = "%04d".format(seq.get().incrementAndGet())+"${formatter.format(LocalDateTime.now())}${getMac()}${getProcessId()}"+"%5d".format(Thread.currentThread().id)
+fun generateTraceId() = "%04d".format(seq.get().getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getMac()}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
 
 fun generateSpanId(rpcId: String?) = UUID.randomUUID().toString()
 

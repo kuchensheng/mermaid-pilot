@@ -25,9 +25,9 @@ object ServletPlugin : IPlugin {
 
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         //todo 缺少一步：排除不想拦截的servlet
-        override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named(httpServletName))
+        override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named<TypeDescription>(httpServletName)
+                .and(ElementMatchers.not(ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection).or(ElementMatchers.isAnnotatedWith(controller)))))
                 .and(ElementMatchers.not(ElementMatchers.isAbstract()))
-                .and(ElementMatchers.not(ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection).or(ElementMatchers.isAnnotatedWith<TypeDescription>(controller))))
 
         override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
                 .and(ElementMatchers.takesArguments<MethodDescription>(2)

@@ -20,7 +20,7 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
 val restCollection: Class<out Annotation> = Class.forName("org.springframework.web.bind.annotation.RestController") as Class<out Annotation>
 val controller : Class<out Annotation> = Class.forName("org.springframework.stereotype.Controller") as Class<out Annotation>
 object SpringWebPlugin : IPlugin {
-    override fun getName(): String? = PluginName.SPRINGWEB.code
+    override fun getName(): String? = "springweb"
 
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription>? = ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection)

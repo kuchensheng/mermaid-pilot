@@ -26,7 +26,7 @@ object JvmPlugin : IPlugin {
         return arrayOf(
                 object : InterceptPoint {
                     override fun buildTypesMatcher(): ElementMatcher<TypeDescription> {
-                        return ElementMatchers.nameStartsWith<TypeDescription>("com.isyscore")
+                        return ElementMatchers.nameStartsWith<TypeDescription>("org.example")
                     }
 
                     override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> {
