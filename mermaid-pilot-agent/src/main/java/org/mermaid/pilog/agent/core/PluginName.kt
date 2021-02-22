@@ -4,6 +4,7 @@ import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.httpclient.HttpClient3Plugin
 import org.mermaid.pilog.agent.plugin.httpclient.HttpClient4Plugin
 import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
+import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
 import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
 
@@ -19,7 +20,8 @@ enum class PluginName {
     JVMPLUGIN("jvm",JvmPlugin),
     SERVLET("servlet",ServletPlugin),
     HTTP3PLUGIN("http3",HttpClient3Plugin),
-    HTTP4PLUGIN("http4", HttpClient4Plugin)
+    HTTP4PLUGIN("http4", HttpClient4Plugin),
+    PROCESS("process",ProcessPlugin)
 //    SPRINGWEB("springweb",SpringWebPlugin)
     ;
 

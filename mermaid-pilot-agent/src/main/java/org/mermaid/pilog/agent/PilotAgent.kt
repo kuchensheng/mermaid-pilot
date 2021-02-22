@@ -56,7 +56,7 @@ class PilotAgent {
             }
 
             override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
-                println("方法执行异常,class is $p0,classLoader is $p1,Throwable is $p4")
+                println("方法执行异常,class is $p0,classLoader is $p1,Throwable:\n $p4")
             }
 
             override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
