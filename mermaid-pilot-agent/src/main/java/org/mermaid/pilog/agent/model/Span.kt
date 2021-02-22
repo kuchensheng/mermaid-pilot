@@ -44,18 +44,24 @@ class Span {
 val localSpan = ThreadLocal<Stack<Span>>()
 
 val ROOT_SPAN_ID = "0"
-fun createEnterSpan(rpcId: String?) : Span {
-    var linkedId:String = generateTraceId()
-
-    return Span(linkedId).apply {
-        spanId = generateSpanId(rpcId)
-        startTime = LocalDateTime.now()
-        val stack = localSpan.get()
-        if (stack.isNullOrEmpty()) {
-            localSpan.set(Stack())
-        }
-        localSpan.get().push(this)
+fun createEnterSpan(rpcId: String?) : Span  = Span(generateTraceId()).apply {
+    spanId = generateSpanId(rpcId)
+    startTime = LocalDateTime.now()
+    val stack = localSpan.get()
+    if (stack.isNullOrEmpty()) {
+        localSpan.set(Stack())
     }
+    localSpan.get().push(this)
+}
+
+fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = Span(traceId?: generateTraceId()).apply {
+    spanId = generateSpanId(rpcId)
+    startTime = LocalDateTime.now()
+    val stack = localSpan.get()
+    if (stack.isNullOrEmpty()) {
+        localSpan.set(Stack())
+    }
+    localSpan.get().push(this)
 }
 
 fun getCurrentSpan() : Span? = localSpan.get()?.let { it.peek() }

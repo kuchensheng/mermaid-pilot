@@ -15,7 +15,7 @@ import kotlin.concurrent.getOrSet
 private val traceContext = InheritableThreadLocal<TraceContextModel>()
 fun clearAll() = traceContext.remove()
 fun set(model: TraceContextModel) = traceContext.set(model)
-fun getTraceId() = getOrNew().traceId
+fun getTraceId() = getOrNew().traceId?: generateTraceId().also { setSpanId(it) }
 fun setTraceId(traceId: String) = getOrNew().let { it.traceId = traceId }
 fun getSpanId() = getOrNew().spanId
 fun setSpanId(spanId : String) = getOrNew().let { it.spanId = spanId }

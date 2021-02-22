@@ -9,6 +9,7 @@ import org.mermaid.pilog.agent.model.createEnterSpan
 import org.slf4j.LoggerFactory
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
+import org.springframework.http.HttpRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.lang.reflect.Method
@@ -26,17 +27,11 @@ import javax.servlet.http.HttpServletResponse
  * @date 2021/2/1911:05
  * @version 1.0
  */
+const val HEADER_TRACE_ID = "t-header-trace-id"
+const val HEADER_SPAN_ID = "t-header-span-id"
+val parameterNames = hashSetOf("sec-fetch-mode","sec-fetch-site","accept-language","sec-fetch-user","cache-control","user-agent","sec-fetch-dest","host","accept-encoding")
 class ServletHandler : IHandler {
     private val logger = LoggerFactory.getLogger(ServletHandler::class.java)
-    private val HEADER_TRACE_ID = "t-header-trace-id"
-    private val HEADER_SPAN_ID = "t-header-span-id"
-    private val parameterNames = hashSetOf("sec-fetch-mode","sec-fetch-site","accept-language","sec-fetch-user","cache-control","user-agent","sec-fetch-dest","host","accept-encoding")
-    private fun getAppName() : String? = object : EnvironmentAware {
-        var appName:String? = null
-        override fun setEnvironment(p0: Environment) {
-            appName = p0.getProperty("spring.application.name")
-        }
-    }.run { appName }
 
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = args?.get(0) as HttpServletRequest
@@ -73,19 +68,6 @@ class ServletHandler : IHandler {
         }
     }
 
-    private fun getParameterInfo(request: HttpServletRequest): Map<String, Any?>? {
-        val parameterMap = hashMapOf<String,Any?>()
-        //读取url参数信息
-        request.parameterNames?.iterator()?.forEach {
-            parameterMap[it] = request.getParameter(it)
-        }
-        request.headerNames?.iterator()?.forEach {
-            if (!parameterNames.contains(it)) parameterMap[it] = request.getHeader(it)
-        }
-        request.reader.readText()?.let { parameterMap["requestBody"] = it }
-        return parameterMap
-    }
-
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
@@ -100,3 +82,25 @@ class ServletHandler : IHandler {
         }
     }
 }
+
+fun getAppName() : String? = object : EnvironmentAware {
+    var appName:String? = null
+    override fun setEnvironment(p0: Environment) {
+        appName = p0.getProperty("spring.application.name")
+    }
+}.run { appName }
+
+fun getParameterInfo(request: HttpServletRequest): Map<String, Any?>? {
+    val parameterMap = hashMapOf<String,Any?>()
+    //读取url参数信息
+    request.parameterNames?.iterator()?.forEach {
+        parameterMap[it] = request.getParameter(it)
+    }
+    request.headerNames?.iterator()?.forEach {
+        if (!parameterNames.contains(it)) parameterMap[it] = request.getHeader(it)
+    }
+    request.reader.readText()?.let { parameterMap["requestBody"] = it }
+    return parameterMap
+}
+
+fun getParameterInfo(request: HttpRequest?): Map<String, Any?>?  = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }
