@@ -3,8 +3,11 @@ package org.mermaid.pilog.agent.model
 import com.alibaba.fastjson.JSONObject
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.generateTraceId
+import org.mermaid.pilog.agent.common.produce
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.concurrent.getOrSet
 
 /**
  * description: 链路跟踪模型
@@ -58,13 +61,13 @@ fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = Span(traceId?: g
     spanId = generateSpanId(rpcId)
     rpcId?.let { parentId = it }
     startTime = LocalDateTime.now()
-    val stack = localSpan.get()
-    if (stack.isNullOrEmpty()) {
-        localSpan.set(Stack())
-    }
-    localSpan.get().push(this)
+    localSpan.getOrSet { Stack() }.push(this)
 }
 
-fun getCurrentSpan() : Span? = localSpan.get()?.let { it.peek() }
+fun getCurrentSpan() : Span? = localSpan.getOrSet { Stack() }?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
-fun getCurrentSpanAndRemove() : Span ? = localSpan.get()?.let { it.pop() }
+fun getCurrentSpanAndRemove() = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
+    this.endTime = LocalDateTime.now()
+    this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
+    produce(this)
+}

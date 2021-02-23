@@ -30,12 +30,7 @@ class ProcessHandler : IHandler {
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        getCurrentSpanAndRemove()?.let {
-            it.methodName = method.name
-            it.endTime = LocalDateTime.now()
-            it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
-            produce(it)
-        }
+        getCurrentSpanAndRemove()
     }
 }
 

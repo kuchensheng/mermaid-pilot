@@ -23,7 +23,7 @@ class HttpClientAdvice {
 
         @JvmStatic
         @Advice.OnMethodExit(onThrowable = Throwable::class)
-        fun exit(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>, @Advice.Thrown throwable: Throwable) {
+        fun exit(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>, @Advice.Thrown throwable: Throwable?) {
             getHandler(HttpClientHandler::class.java).after(className,method,args,null,throwable)
         }
     }

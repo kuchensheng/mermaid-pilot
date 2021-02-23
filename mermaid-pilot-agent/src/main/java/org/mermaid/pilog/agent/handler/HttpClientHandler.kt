@@ -31,6 +31,7 @@ class HttpClientHandler : IHandler {
         this.startTime = LocalDateTime.now()
         this.requestUri = requestUri
         this.type = HandlerType.HTTPCLIENT.name
+        this.parameterInfo = collectParameters(method,args)
     }.also { span ->
         args?.forEach {
             if (it is HttpRequest) {
@@ -44,9 +45,6 @@ class HttpClientHandler : IHandler {
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        getCurrentSpanAndRemove()?.let { it.endTime = LocalDateTime.now()
-            it.methodName = method.name
-            it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
-            produce(it) }
+        getCurrentSpanAndRemove()
     }
 }

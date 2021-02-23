@@ -72,12 +72,7 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpanAndRemove()?.let {
-            it.methodName = method.name
-            it.endTime = LocalDateTime.now()
-            it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
-            produce(it)
-        }
+        getCurrentSpanAndRemove()
     }
 }
 

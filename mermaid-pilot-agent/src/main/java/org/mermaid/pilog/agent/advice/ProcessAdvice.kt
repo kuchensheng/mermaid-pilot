@@ -23,12 +23,13 @@ class ProcessAdvice {
             getHandler(ProcessHandler::class.java).before(className,method, args)
         }
 
-        @Advice.OnMethodExit
+        @Advice.OnMethodExit(onThrowable = Throwable::class)
         @JvmStatic
         fun exit(@Advice.Origin("#t") className: String,
                  @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?) {
-            getHandler(ProcessHandler::class.java).after(className,method,args,null,null)
+                 @Advice.AllArguments args: Array<*>?,
+                 @Advice.Thrown throwable: Throwable?) {
+            getHandler(ProcessHandler::class.java).after(className,method,args,null,throwable)
         }
     }
 }

@@ -27,8 +27,8 @@ class SpringWebAdvice {
         @JvmStatic
         fun exit(@Advice.Origin("#t") className: String,
                  @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?) {
-            getHandler(SpringWebHandler::class.java).after(className,method,args,null,null)
+                 @Advice.AllArguments args: Array<*>?, @Advice.Thrown throwable: Throwable?) {
+            getHandler(SpringWebHandler::class.java).after(className,method,args,null,throwable)
         }
     }
 }
