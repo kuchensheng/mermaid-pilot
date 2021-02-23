@@ -40,6 +40,6 @@ private fun getProcessId() = (ManagementFactory.getRuntimeMXBean().name.split("@
  */
 fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getMac()}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
 
-fun generateSpanId(rpcId: String?) = UUID.randomUUID().toString().replace("-","")
+fun generateSpanId(rpcId: String?) = (rpcId?.let { rpcId.toInt().plus(1).toString() }) ?: "0"
 
 private fun hexByte(b:Byte) = "0000${Integer.toHexString(b.toInt())}".run { substring(length -2) }

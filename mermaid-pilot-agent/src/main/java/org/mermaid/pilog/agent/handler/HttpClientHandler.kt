@@ -23,7 +23,6 @@ import java.time.LocalDateTime
  */
 class HttpClientHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span  = createEnterSpan(getCurrentSpan()?.let { it.spanId },getTraceId()).apply {
-        this.parentId = "0"
         this.appName = getAppName()
         this.className = className
         this.methodName = method.name
