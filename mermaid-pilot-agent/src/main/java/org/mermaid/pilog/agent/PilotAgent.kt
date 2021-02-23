@@ -29,11 +29,10 @@ class PilotAgent {
         fun premain(args: String?, inst: Instrumentation) {
             println("基于javaagent链路跟踪PIVOT信息收集器")
             println("=================================================================")
-            val listener = builderListener()
             loadPlugin()
             loadHandler()
             initialize()
-            var agentBuilder : AgentBuilder = AgentBuilder.Default().with(listener).disableClassFormatChanges()
+            var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
                     .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
             pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
             agentBuilder.installOn(inst)
