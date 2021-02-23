@@ -38,7 +38,7 @@ class ServletHandler : IHandler {
         val request = args?.get(0) as HttpServletRequest
         val uri =  request.requestURI.toString()
         //获取上一个span的spanId,这个Id是本次span的parentId
-        val parentId = request.getHeader(HEADER_SPAN_ID)?:"0"
+        val parentId = (request.getHeader(HEADER_SPAN_ID)?: getCurrentSpan()?.let { it.spanId }) ?: "0"
         var traceId = request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also {
             object : HttpServletRequestWrapper(request) {
                 private val customHeaders = hashMapOf<String,String>()

@@ -32,7 +32,7 @@ class SpringWebHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
         var traceId = request?.getHeader(HEADER_TRACE_ID)?: getTraceId()
-        val rpcId =  request?.getHeader(HEADER_SPAN_ID)
+        val rpcId =  (request?.getHeader(HEADER_SPAN_ID) ?: getCurrentSpan()?.let { it.spanId }) ?: "0"
         val parameterInfo = hashMapOf<String,Any?>()
         if (!args.isNullOrEmpty()) {
             method.parameters?.indices?.forEach {

@@ -22,11 +22,10 @@ class ThreadHandler : IHandler {
         //获取当前traceId
         val traceId = getTraceId()
         var spand : Span? = getCurrentSpan()
-        return createEnterSpan(spand?.parentId,traceId).apply {
+        return createEnterSpan(spand?.spanId,traceId).apply {
             startTime = LocalDateTime.now()
             appName = getAppName()
             this.className = className
-            this.parentId = spand?.parentId
             this.methodName = method.name
             this.type = "thread"
         }
