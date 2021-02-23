@@ -3,6 +3,7 @@ package org.mermaid.pilog.agent.advice
 import net.bytebuddy.asm.Advice
 import org.mermaid.pilog.agent.handler.SpringWebHandler
 import org.mermaid.pilog.agent.handler.getHandler
+import org.mermaid.pilog.agent.plugin.factory.logger
 import java.lang.reflect.Method
 
 /**
@@ -19,6 +20,7 @@ class SpringWebAdvice {
         @JvmStatic
         fun enter(@Advice.Origin("#t") className: String,
                   @Advice.Origin method: Method) {
+            logger.info("执行SpringWebAdvice")
             getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
         }
 

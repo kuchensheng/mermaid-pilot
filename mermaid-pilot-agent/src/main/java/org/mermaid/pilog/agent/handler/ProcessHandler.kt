@@ -6,6 +6,7 @@ import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
+import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import java.lang.reflect.Method
 import java.time.Duration
 import java.time.LocalDateTime
@@ -30,7 +31,8 @@ class ProcessHandler : IHandler {
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        getCurrentSpan()?.let {
+        getCurrentSpanAndRemove()?.let {
+            it.methodName = method.name
             it.endTime = LocalDateTime.now()
             it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
             produce(it)

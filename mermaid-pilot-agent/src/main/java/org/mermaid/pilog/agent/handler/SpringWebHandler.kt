@@ -1,12 +1,9 @@
 package org.mermaid.pilog.agent.handler
 
-import org.mermaid.pilog.agent.common.generateTraceId
-import org.mermaid.pilog.agent.common.produce
-import org.mermaid.pilog.agent.common.setTraceId
+import org.mermaid.pilog.agent.common.*
 import org.mermaid.pilog.agent.core.HandlerType
-import org.mermaid.pilog.agent.model.Span
-import org.mermaid.pilog.agent.model.createEnterSpan
-import org.mermaid.pilog.agent.model.getCurrentSpan
+import org.mermaid.pilog.agent.model.*
+import org.mermaid.pilog.agent.plugin.factory.logger
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 import org.springframework.web.context.request.RequestContextHolder
@@ -42,9 +39,7 @@ class SpringWebHandler : IHandler {
                 parameterInfo[method.parameters[it].name] = args[it]
             }
         }
-
-        return createEnterSpan(rpcId).apply {
-            this.type = HandlerType.REQ.name
+        return createEnterSpan(rpcId, getTraceId()).apply {
             this.className = className
             this.methodName = method.name
             this.startTime = LocalDateTime.now()
@@ -60,7 +55,11 @@ class SpringWebHandler : IHandler {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
         val response = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpan()?.let {
+        logger.info("springweb执行完毕，执行方法:${method.name}")
+        getCurrentSpanAndRemove()?.let {
+            if (HandlerType.SERVLET.name == it.type) localSpan.remove()
+            it.type = HandlerType.SPRINGWEB.name
+            it.methodName = method.name
             it.endTime = LocalDateTime.now()
             it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
             produce(it)

@@ -7,6 +7,7 @@ import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
+import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.springframework.http.HttpRequest
 import java.lang.reflect.Method
 import java.time.Duration
@@ -43,7 +44,8 @@ class HttpClientHandler : IHandler {
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        getCurrentSpan()?.let { it.endTime = LocalDateTime.now()
+        getCurrentSpanAndRemove()?.let { it.endTime = LocalDateTime.now()
+            it.methodName = method.name
             it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
             produce(it) }
     }

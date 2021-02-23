@@ -22,10 +22,9 @@ class ProcessAdvice {
         @JvmStatic
         fun enter(@Advice.Origin("#t") className: String,
                   @Advice.Origin method: Method,
-                  @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
-                  @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
+                  @Advice.AllArguments args: Array<*>?) {
             println("processHandler 执行方法：${method.name}")
-            getHandler(ProcessHandler::class.java).before(className,method, arrayOf(req,resp))
+            getHandler(ProcessHandler::class.java).before(className,method, args)
         }
 
         @Advice.OnMethodExit

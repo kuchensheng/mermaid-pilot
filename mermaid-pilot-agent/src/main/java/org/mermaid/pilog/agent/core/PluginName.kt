@@ -3,10 +3,12 @@ package org.mermaid.pilog.agent.core
 import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.httpclient.HttpClient3Plugin
 import org.mermaid.pilog.agent.plugin.httpclient.HttpClient4Plugin
+import org.mermaid.pilog.agent.plugin.httpclient.OkHttpClient3xPlugin
 import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
 import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
+import org.mermaid.pilog.agent.plugin.thread.ThreadPlugin
 
 /**
  * description: TODO
@@ -21,8 +23,10 @@ enum class PluginName {
     SERVLET("servlet",ServletPlugin),
     HTTP3PLUGIN("http3",HttpClient3Plugin),
     HTTP4PLUGIN("http4", HttpClient4Plugin),
-//    PROCESS("process",ProcessPlugin)
-//    SPRINGWEB("springweb",SpringWebPlugin)
+    PROCESS("process",ProcessPlugin),
+    OKHTTP3PLUGIN("okhttp3", OkHttpClient3xPlugin),
+//    THREADPLUGIN("thread",ThreadPlugin),
+    SPRINGWEB("springweb",SpringWebPlugin)
     ;
 
     var code: String

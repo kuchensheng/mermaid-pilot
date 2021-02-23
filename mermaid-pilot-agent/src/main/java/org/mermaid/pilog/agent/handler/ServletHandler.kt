@@ -1,13 +1,11 @@
 package org.mermaid.pilog.agent.handler
 
-import org.mermaid.pilog.agent.common.generateSpanId
-import org.mermaid.pilog.agent.common.generateTraceId
-import org.mermaid.pilog.agent.common.produce
-import org.mermaid.pilog.agent.common.setTraceId
+import org.mermaid.pilog.agent.common.*
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
+import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.slf4j.LoggerFactory
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
@@ -43,7 +41,7 @@ class ServletHandler : IHandler {
         val parentId = request.getHeader(HEADER_SPAN_ID)?:"0"
         var traceId : String? = request.getHeader(HEADER_TRACE_ID)
         if (traceId.isNullOrEmpty()) {
-            generateTraceId().apply { setTraceId(this) }.also {
+            traceId = getTraceId().also {
                 object : HttpServletRequestWrapper(request) {
                     private val customHeaders = hashMapOf<String,String>()
                     fun putHeader(name:String,value: String) {customHeaders[name] = value}
@@ -57,17 +55,15 @@ class ServletHandler : IHandler {
                 }
             }
         }
-        return createEnterSpan(parentId).apply {
-            this.type = HandlerType.REQ.name
+        return createEnterSpan(parentId, traceId).apply {
+            this.type = HandlerType.SERVLET.name
             this.className = className
-            this.methodName = method.name
             this.startTime = LocalDateTime.now()
             this.parameterInfo = getParameterInfo(request)
             this.requestUri = uri
             this.requestMethod = request?.method
             this.appName = getAppName()
             this.parentId = parentId
-            this.spanId = generateSpanId(parentId)
         }
     }
 
@@ -76,7 +72,9 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpan()?.let {
+        logger.info("servlet执行完毕，执行方法:${method.name}")
+        getCurrentSpanAndRemove()?.let {
+            it.methodName = method.name
             it.endTime = LocalDateTime.now()
             it.costTime = Duration.between(it.startTime,it.endTime).toMillis()
             produce(it)

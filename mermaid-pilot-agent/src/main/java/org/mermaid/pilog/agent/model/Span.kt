@@ -65,3 +65,5 @@ fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = Span(traceId?: g
 }
 
 fun getCurrentSpan() : Span? = localSpan.get()?.let { it.peek() }
+
+fun getCurrentSpanAndRemove() : Span ? = localSpan.get()?.let { it.pop() }

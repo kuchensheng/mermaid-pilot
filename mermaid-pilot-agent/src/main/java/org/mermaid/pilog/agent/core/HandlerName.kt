@@ -14,8 +14,9 @@ enum class HandlerName {
 
     SERVLET("servlet",ServletHandler::class.java,""),
     HTTPCLIENT("httpclient",HttpClientHandler::class.java,""),
-    PROCESS("process",ProcessHandler::class.java,"")
-//    SPRINTWEB("springweb",SpringWebHandler::class.java,"")
+    PROCESS("process",ProcessHandler::class.java,""),
+    SPRINTWEB("springweb",SpringWebHandler::class.java,""),
+    THREAD("thread",ThreadHandler::class.java,"")
     ;
     var code : String = ""
     var clazz: Class<out IHandler>? = null
