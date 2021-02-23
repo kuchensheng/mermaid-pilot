@@ -25,7 +25,9 @@ object ProcessPlugin : IPlugin {
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.isAnnotatedWith(serviceAnnotation)
 
-        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription>? = buildMethodsMatcher_(null,null)
+        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription>? = ElementMatchers.isMethod<MethodDescription>()
+                .and(ElementMatchers.isPublic<MethodDescription>())
+                .and(ElementMatchers.not(ElementMatchers.isConstructor()))
     })
 
     override fun interceptorAdviceClass(): Class<*>  = ProcessAdvice::class.java

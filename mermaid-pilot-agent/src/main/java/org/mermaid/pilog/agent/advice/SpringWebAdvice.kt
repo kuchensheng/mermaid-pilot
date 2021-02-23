@@ -23,7 +23,7 @@ class SpringWebAdvice {
             getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
         }
 
-        @Advice.OnMethodExit
+        @Advice.OnMethodExit(onThrowable = Throwable::class)
         @JvmStatic
         fun exit(@Advice.Origin("#t") className: String,
                  @Advice.Origin method: Method,

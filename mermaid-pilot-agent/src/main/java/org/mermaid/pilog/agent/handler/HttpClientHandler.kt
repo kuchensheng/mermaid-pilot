@@ -28,7 +28,6 @@ class HttpClientHandler : IHandler {
         this.methodName = method.name
         this.requestMethod = requestMethod
         this.startTime = LocalDateTime.now()
-        this.requestUri = requestUri
         this.type = HandlerType.HTTPCLIENT.name
         this.parameterInfo = collectParameters(method,args)
     }.also { span ->

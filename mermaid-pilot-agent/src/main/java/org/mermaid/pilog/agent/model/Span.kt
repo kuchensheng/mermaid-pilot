@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSONObject
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.generateTraceId
 import org.mermaid.pilog.agent.common.produce
+import java.net.Inet4Address
+import java.net.InetAddress
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.getOrSet
 
 /**
@@ -22,6 +26,7 @@ class Span {
     var traceId : String
     var spanId: String = ""
     var parentId:String? = null
+    var seq : Int = 0
     var startTime: LocalDateTime = LocalDateTime.now()
     var endTime: LocalDateTime? = null
     var parameterInfo: Map<String,Any?>? = null
@@ -33,6 +38,7 @@ class Span {
     var requestMethod: String? = null
     var appName: String? = null
     var throwable: Throwable? = null
+    val hostName : String = Inet4Address.getLocalHost().hostAddress
 
     @JvmOverloads
     constructor(traceId: String) {
@@ -56,15 +62,18 @@ fun createEnterSpan(rpcId: String?) : Span  = Span(generateTraceId()).apply {
     }
     localSpan.get().push(this)
 }
-
-fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = Span(traceId?: generateTraceId()).apply {
-    spanId = generateSpanId(rpcId)
-    rpcId?.let { parentId = it }
-    startTime = LocalDateTime.now()
-    localSpan.getOrSet { Stack() }.push(this)
+val lock = ReentrantLock()
+fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = lock.lock().let {
+    Span(traceId?: generateTraceId()).apply {
+        this.spanId = generateSpanId(rpcId)
+        this.seq += 1
+        rpcId?.let { parentId = it }
+        startTime = LocalDateTime.now()
+        localSpan.getOrSet { Stack() }.push(this)
+    }.apply { lock.unlock() }
 }
 
-fun getCurrentSpan() : Span? = localSpan.getOrSet { Stack() }?.let { if (!it.isNullOrEmpty()) it.peek() else null }
+fun getCurrentSpan() : Span? = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
 fun getCurrentSpanAndRemove() = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
     this.endTime = LocalDateTime.now()
