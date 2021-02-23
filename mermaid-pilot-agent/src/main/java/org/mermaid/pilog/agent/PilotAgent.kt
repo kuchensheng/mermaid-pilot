@@ -47,7 +47,7 @@ class PilotAgent {
             }
 
             override fun onTransformation(typeDescription: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: DynamicType?) {
-                println("onTransformation:$typeDescription,dynamicType:$p4")
+                org.mermaid.pilog.agent.plugin.factory.logger.info("onTransformation:$typeDescription,dynamicType:$p4")
             }
 
             override fun onIgnored(p0: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
@@ -55,7 +55,7 @@ class PilotAgent {
             }
 
             override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
-                println("方法执行异常,class is $p0,classLoader is $p1,Throwable:\n $p4")
+                org.mermaid.pilog.agent.plugin.factory.logger.warning("方法执行异常,class is $p0,classLoader is $p1,Throwable:\n $p4")
             }
 
             override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {

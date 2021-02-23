@@ -1,7 +1,7 @@
 package org.mermaid.pilog.agent.core
 
 /**
- * description: TODO
+ * description: 处理器类型枚举
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

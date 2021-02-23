@@ -3,7 +3,6 @@ package org.mermaid.pilog.agent.common
 import java.lang.StringBuilder
 import java.lang.management.ManagementFactory
 import java.net.NetworkInterface
-import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*

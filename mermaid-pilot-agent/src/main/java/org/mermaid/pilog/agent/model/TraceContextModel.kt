@@ -3,7 +3,7 @@ package org.mermaid.pilog.agent.model
 import org.mermaid.pilog.agent.common.generateTraceId
 
 /**
- * description: TODO
+ * description: 跟踪日志上线文实体
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

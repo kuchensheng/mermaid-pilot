@@ -10,7 +10,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ForkJoinTask
 
 /**
- * description: TODO
+ * description: 线程处理器
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

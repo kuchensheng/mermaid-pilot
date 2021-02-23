@@ -6,7 +6,7 @@ import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 
 /**
- * description: TODO
+ * description: 类型和方法匹配生成器
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

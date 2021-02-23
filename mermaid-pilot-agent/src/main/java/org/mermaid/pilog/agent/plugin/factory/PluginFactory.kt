@@ -2,13 +2,10 @@ package org.mermaid.pilog.agent.plugin.factory
 
 import org.mermaid.pilog.agent.core.PluginName
 import org.mermaid.pilog.agent.plugin.IPlugin
-import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
-import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
-import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
 import java.util.logging.Logger
 
 /**
- * description: TODO
+ * description: 插件加载器
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜
@@ -18,6 +15,6 @@ import java.util.logging.Logger
 val pluginGroup = arrayListOf<IPlugin>()
 val logger: Logger = Logger.getLogger("PluginFactory")
 fun loadPlugin() = PluginName.values().forEach {
-    logger.info("加载${it.code}")
+//    logger.info("加载${it.code}")
     pluginGroup.add(it.instance)
 }

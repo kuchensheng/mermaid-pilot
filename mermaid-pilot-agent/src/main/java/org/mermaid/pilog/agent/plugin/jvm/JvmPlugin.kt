@@ -11,7 +11,7 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
 
 
 /**
- * description: TODO
+ * description: jvm插件
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

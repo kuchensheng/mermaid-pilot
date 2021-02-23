@@ -11,7 +11,7 @@ import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
 import org.mermaid.pilog.agent.plugin.thread.ThreadPlugin
 
 /**
- * description: TODO
+ * description: 插件名枚举
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

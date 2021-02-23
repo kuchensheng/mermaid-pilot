@@ -3,7 +3,6 @@ package org.mermaid.pilog.agent.advice
 import net.bytebuddy.asm.Advice
 import org.mermaid.pilog.agent.handler.HttpClientHandler
 import org.mermaid.pilog.agent.handler.getHandler
-import java.lang.Exception
 import java.lang.reflect.Method
 
 /**

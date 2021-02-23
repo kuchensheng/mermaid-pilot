@@ -14,7 +14,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 /**
- * description: TODO
+ * description: http客户端处理
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

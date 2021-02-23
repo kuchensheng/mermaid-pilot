@@ -21,8 +21,6 @@ import java.time.LocalDateTime
  * @version 1.0
  */
 class SpringWebHandler : IHandler {
-    private val HEADER_TRACE_ID = "t-header-trace-id"
-    private val HEADER_SPAN_ID = "t-header-span-id"
     private fun getAppName() : String? = object : EnvironmentAware {
         var appName:String? = null
         override fun setEnvironment(p0: Environment) {

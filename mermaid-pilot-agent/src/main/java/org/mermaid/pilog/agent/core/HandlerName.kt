@@ -3,7 +3,7 @@ package org.mermaid.pilog.agent.core
 import org.mermaid.pilog.agent.handler.*
 
 /**
- * description: TODO
+ * description: 处理器枚举
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜

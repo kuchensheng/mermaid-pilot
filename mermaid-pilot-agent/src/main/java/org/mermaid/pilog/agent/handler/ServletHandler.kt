@@ -7,6 +7,8 @@ import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpRequest
@@ -80,10 +82,10 @@ class ServletHandler : IHandler {
     }
 }
 
-fun getAppName() : String? = object : EnvironmentAware {
+fun getAppName() : String? = object : ApplicationContextAware {
     var appName:String? = null
-    override fun setEnvironment(p0: Environment) {
-        appName = p0.getProperty("spring.application.name")
+    override fun setApplicationContext(applicationContext: ApplicationContext) {
+        appName = applicationContext.applicationName
     }
 }.run { appName }
 
