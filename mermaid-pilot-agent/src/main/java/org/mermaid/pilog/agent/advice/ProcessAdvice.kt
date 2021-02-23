@@ -20,7 +20,6 @@ class ProcessAdvice {
         fun enter(@Advice.Origin("#t") className: String,
                   @Advice.Origin method: Method,
                   @Advice.AllArguments args: Array<*>?) {
-            println("processHandler 执行方法：${method.name}")
             getHandler(ProcessHandler::class.java).before(className,method, args)
         }
 

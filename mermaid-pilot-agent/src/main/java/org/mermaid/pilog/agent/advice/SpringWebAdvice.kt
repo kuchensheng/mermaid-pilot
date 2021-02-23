@@ -20,7 +20,6 @@ class SpringWebAdvice {
         @JvmStatic
         fun enter(@Advice.Origin("#t") className: String,
                   @Advice.Origin method: Method) {
-            logger.info("执行SpringWebAdvice")
             getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
         }
 

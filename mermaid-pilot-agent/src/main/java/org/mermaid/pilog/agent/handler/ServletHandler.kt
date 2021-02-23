@@ -72,7 +72,6 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        logger.info("servlet执行完毕，执行方法:${method.name}")
         getCurrentSpanAndRemove()?.let {
             it.methodName = method.name
             it.endTime = LocalDateTime.now()

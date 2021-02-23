@@ -53,7 +53,6 @@ class SpringWebHandler : IHandler {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
         val response = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        logger.info("springweb执行完毕，执行方法:${method.name}")
         getCurrentSpanAndRemove()?.let {
             if (HandlerType.SERVLET.name == it.type) localSpan.remove()
             it.type = HandlerType.SPRINGWEB.name
