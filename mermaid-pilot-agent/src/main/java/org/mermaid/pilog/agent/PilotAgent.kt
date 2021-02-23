@@ -16,7 +16,7 @@ import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
 
 /**
- * description: TODO
+ * description: vm参数中添加：-javaagent:${user.home}\mermaid-pilot-agent\target\mermaid-pilot-agent-1.0-jar-with-dependencies.jar
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 78721
