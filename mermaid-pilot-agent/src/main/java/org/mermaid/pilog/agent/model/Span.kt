@@ -56,6 +56,7 @@ fun createEnterSpan(rpcId: String?) : Span  = Span(generateTraceId()).apply {
 
 fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = Span(traceId?: generateTraceId()).apply {
     spanId = generateSpanId(rpcId)
+    rpcId?.let { parentId = it }
     startTime = LocalDateTime.now()
     val stack = localSpan.get()
     if (stack.isNullOrEmpty()) {

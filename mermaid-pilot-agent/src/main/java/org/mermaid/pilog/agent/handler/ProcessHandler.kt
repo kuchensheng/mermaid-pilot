@@ -12,7 +12,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 /**
- * description: TODO
+ * description: 这对方法的拦截，目前是针对了@Service注解的类的public方法进行的拦截
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜
@@ -25,7 +25,6 @@ class ProcessHandler : IHandler {
         this.type = HandlerType.PROCESS.name
         this.methodName = method.name
         this.parameterInfo = collectParameters(method,args)
-        this.parentId = getCurrentSpan()?.parentId
         this.appName = getAppName()
         this.className = className
     }

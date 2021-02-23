@@ -39,22 +39,20 @@ class ServletHandler : IHandler {
         val uri =  request.requestURI.toString()
         //获取上一个span的spanId,这个Id是本次span的parentId
         val parentId = request.getHeader(HEADER_SPAN_ID)?:"0"
-        var traceId : String? = request.getHeader(HEADER_TRACE_ID)
-        if (traceId.isNullOrEmpty()) {
-            traceId = getTraceId().also {
-                object : HttpServletRequestWrapper(request) {
-                    private val customHeaders = hashMapOf<String,String>()
-                    fun putHeader(name:String,value: String) {customHeaders[name] = value}
-                    override fun getHeader(name: String?): String = customHeaders[name]?:request.getHeader(name)
-                    override fun getHeaderNames(): Enumeration<String> = Collections.enumeration(hashSetOf<String>().apply {
-                        request.headerNames.iterator().forEach { add(it) }
-                    })
-                }.run {
-                    putHeader(HEADER_TRACE_ID,it)
-                    putHeader(HEADER_SPAN_ID,parentId)
-                }
+        var traceId = request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also {
+            object : HttpServletRequestWrapper(request) {
+                private val customHeaders = hashMapOf<String,String>()
+                fun putHeader(name:String,value: String) {customHeaders[name] = value}
+                override fun getHeader(name: String?): String = customHeaders[name]?:request.getHeader(name)
+                override fun getHeaderNames(): Enumeration<String> = Collections.enumeration(hashSetOf<String>().apply {
+                    request.headerNames.iterator().forEach { add(it) }
+                })
+            }.run {
+                putHeader(HEADER_TRACE_ID,it)
+                putHeader(HEADER_SPAN_ID,parentId)
             }
         }
+
         return createEnterSpan(parentId, traceId).apply {
             this.type = HandlerType.SERVLET.name
             this.className = className

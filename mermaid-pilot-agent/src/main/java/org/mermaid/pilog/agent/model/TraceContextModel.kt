@@ -1,5 +1,7 @@
 package org.mermaid.pilog.agent.model
 
+import org.mermaid.pilog.agent.common.generateTraceId
+
 /**
  * description: TODO
  * copyright: Copyright (c) 2018-2021
@@ -9,9 +11,11 @@ package org.mermaid.pilog.agent.model
  * @version 1.0
  */
 class TraceContextModel {
-    var traceId: String? = null
+    var traceId: String = ""
     var spanId: String? = null
 
+    constructor() {this.traceId = generateTraceId()}
+    constructor(traceId: String) {this.traceId = traceId}
 
     fun copy() = TraceContextModel().apply {
         this.traceId = traceId
