@@ -61,6 +61,7 @@ class ServletHandler : IHandler {
             this.parameterInfo = getParameterInfo(request)
             this.requestUri = uri
             this.requestMethod = request?.method
+            this.methodName = method.name
         }
     }
 

@@ -10,7 +10,7 @@ import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import java.lang.reflect.Method
 
 /**
- * description: TODO
+ * description: Spring 事务执行前后的通知
  * copyright: Copyright (c) 2018-2021
  * company: iSysCore Tech. Co., Ltd.
  * @author 库陈胜
@@ -18,7 +18,7 @@ import java.lang.reflect.Method
  * @version 1.0
  */
 
-object SpringTxEndAdvice {
+object SpringTxAdvice {
     @JvmStatic
     @Advice.OnMethodEnter
     fun enter(@Advice.Origin("#t") className : String,
@@ -28,7 +28,7 @@ object SpringTxEndAdvice {
             this.methodName = method.name
             this.className = className
             this.parameterInfo = collectParameters(method,args)
-            this.type = HandlerType.SPRINGTXEND.name
+            this.type = HandlerType.SPRINGTXBEGIN.name
         }
     }
 

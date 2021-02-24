@@ -33,7 +33,11 @@ class ProcessHandler : IHandler {
 }
 
 fun collectParameters(method: Method,args: Array<*>?) : Map<String,*>?  = hashMapOf<String,Any?>().apply {
-    method.parameters?.indices?.forEach {
-        put(method.parameters[it].name, args?.get(it))
+    try {
+        method.parameters?.indices?.forEach {
+            put(method.parameters[it].name, args?.get(it))
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }

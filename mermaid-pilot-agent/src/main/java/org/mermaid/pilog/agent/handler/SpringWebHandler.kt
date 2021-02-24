@@ -31,16 +31,10 @@ class SpringWebHandler : IHandler {
         val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
         var traceId = request?.getHeader(HEADER_TRACE_ID)?: getTraceId()
         val rpcId =  (request?.getHeader(HEADER_SPAN_ID) ?: getCurrentSpan()?.let { it.spanId }) ?: "0"
-        val parameterInfo = hashMapOf<String,Any?>()
-        if (!args.isNullOrEmpty()) {
-            method.parameters?.indices?.forEach {
-                parameterInfo[method.parameters[it].name] = args[it]
-            }
-        }
         return createEnterSpan(rpcId, traceId).apply {
             this.className = className
             this.methodName = method.name
-            this.parameterInfo = parameterInfo
+            this.parameterInfo = collectParameters(method,args)
             this.requestUri = request?.requestURI
             this.requestMethod = request?.method
         }

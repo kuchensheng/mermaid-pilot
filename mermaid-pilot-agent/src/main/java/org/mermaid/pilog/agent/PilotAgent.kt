@@ -2,18 +2,21 @@ package org.mermaid.pilog.agent
 
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
-import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.utility.JavaModule
-import org.mermaid.pilog.agent.advice.SpringWebAdvice
 import org.mermaid.pilog.agent.common.blockingQueue
+import org.mermaid.pilog.agent.common.consume
+import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * description: vm参数中添加：-javaagent:${user.home}\mermaid-pilot-agent\target\mermaid-pilot-agent-1.0-jar-with-dependencies.jar
@@ -63,19 +66,6 @@ class PilotAgent {
             }
         }
 
-        private fun initialize() {
-            Thread {
-                while (true) {
-                    if (blockingQueue.isNotEmpty()) {
-                        //将span信息推送到服务端
-                        blockingQueue.take().run {
-                            println("将信息推送到服务端：${toString()}")
-                        }
-                    } else {
-                        Thread.sleep(1000)
-                    }
-                }
-            }.start()
-        }
+        private fun initialize() = ThreadPoolExecutor(1,4,0,TimeUnit.SECONDS,LinkedBlockingQueue()).execute { while (true) if (blockingQueue.isEmpty()) Thread.sleep(100) else consume()?.run { report(this) } }
     }
 }
