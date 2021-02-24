@@ -9,18 +9,11 @@ import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import org.springframework.context.EnvironmentAware
-import org.springframework.core.env.Environment
 import org.springframework.http.HttpRequest
-import org.springframework.web.context.request.RequestContextHolder
-import org.springframework.web.context.request.ServletRequestAttributes
 import java.lang.reflect.Method
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletRequestWrapper
-import javax.servlet.http.HttpServletResponse
 
 /**
  * description: SpringBoot / Spring 的Servlet拦截处理
@@ -40,22 +33,9 @@ class ServletHandler : IHandler {
         val request = args?.get(0) as HttpServletRequest
         val uri =  request.requestURI.toString()
         //获取上一个span的spanId,这个Id是本次span的parentId
-        val parentId = (request.getHeader(HEADER_SPAN_ID)?: getCurrentSpan()?.let { it.spanId }) ?: "0"
-        var traceId = request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also {
-            object : HttpServletRequestWrapper(request) {
-                private val customHeaders = hashMapOf<String,String>()
-                fun putHeader(name:String,value: String) {customHeaders[name] = value}
-                override fun getHeader(name: String?): String = customHeaders[name]?:request.getHeader(name)
-                override fun getHeaderNames(): Enumeration<String> = Collections.enumeration(hashSetOf<String>().apply {
-                    request.headerNames.iterator().forEach { add(it) }
-                })
-            }.run {
-                putHeader(HEADER_TRACE_ID,it)
-                putHeader(HEADER_SPAN_ID,parentId)
-            }
-        }
+        request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also { addHeader(request,it)}
 
-        return createEnterSpan(parentId, traceId).apply {
+        return createEnterSpan(getCurrentSpan()).apply {
             this.type = HandlerType.SERVLET.name
             this.className = className
             this.parameterInfo = getParameterInfo(request)
@@ -73,6 +53,17 @@ class ServletHandler : IHandler {
         getCurrentSpanAndRemove(thrown)
     }
 }
+
+fun addHeader(request: HttpServletRequest?, traceId: String) = request?.let { object : HttpServletRequestWrapper(request) {
+    private val customHeaders = hashMapOf<String,String>()
+    fun putHeader(name:String,value: String) {customHeaders[name] = value}
+    override fun getHeader(name: String?): String = customHeaders[name]?:request.getHeader(name)
+    override fun getHeaderNames(): Enumeration<String> = Collections.enumeration(hashSetOf<String>().apply {
+        request.headerNames.iterator().forEach { add(it) }
+    })
+}.run {
+    putHeader(HEADER_TRACE_ID,traceId)
+} }
 
 fun getAppName() : String? = object : ApplicationContextAware {
     var appName:String? = null

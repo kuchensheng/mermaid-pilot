@@ -1,13 +1,13 @@
 package org.mermaid.pilog.agent.common
 
-import com.alibaba.fastjson.JSONObject
+import net.sf.json.JSONObject
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.report.IReporter
 import org.mermaid.pilog.agent.report.getReporter
 import java.util.*
-import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * description: span信息管理
@@ -32,12 +32,22 @@ private fun createSpan(type: HandlerType?,rpcId: String?) {
     if (stack.isEmpty()){}
 }
 
+private val lock = ReentrantLock()
 fun report(span: Span) {
-    getReport(null).report(span)
+    getReport("").run {
+        lock.lock()
+        try {
+            report(span)
+        } finally {
+            lock.unlock()
+        }
+    }
 }
 
 private fun getReport(reportName: String?) : IReporter = getReporter(reportName)?: object : IReporter {
-    override fun report(span: Span): Int?  = println(JSONObject.toJSONString(span)).let { 0 }
+    override fun report(span: Span): Int?  = println(span.toString()).let {
+        println("队列剩余量：${blockingQueue.size}")
+        0 }
 
-    override fun report(list: List<Span>): Int?  = println(JSONObject.toJSONString(list)).let { 0 }
+    override fun report(list: List<Span>): Int?  = println(JSONObject.fromObject(list)).let { 0 }
 }

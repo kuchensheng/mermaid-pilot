@@ -66,6 +66,8 @@ class PilotAgent {
             }
         }
 
-        private fun initialize() = ThreadPoolExecutor(1,4,0,TimeUnit.SECONDS,LinkedBlockingQueue()).execute { while (true) if (blockingQueue.isEmpty()) Thread.sleep(100) else consume()?.run { report(this) } }
+        private fun initialize() {
+            ThreadPoolExecutor(1,4,0,TimeUnit.SECONDS,LinkedBlockingQueue()).execute { while (true) if (blockingQueue.isEmpty()) Thread.sleep(100) else consume()?.run { report(this) } }
+        }
     }
 }

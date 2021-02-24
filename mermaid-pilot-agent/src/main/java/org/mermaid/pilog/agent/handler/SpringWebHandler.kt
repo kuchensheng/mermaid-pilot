@@ -1,16 +1,12 @@
 package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.*
-import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.*
-import org.mermaid.pilog.agent.plugin.factory.logger
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.lang.reflect.Method
-import java.time.Duration
-import java.time.LocalDateTime
 
 /**
  * description: TODO
@@ -29,9 +25,9 @@ class SpringWebHandler : IHandler {
     }.run { appName }
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
-        var traceId = request?.getHeader(HEADER_TRACE_ID)?: getTraceId()
-        val rpcId =  (request?.getHeader(HEADER_SPAN_ID) ?: getCurrentSpan()?.let { it.spanId }) ?: "0"
-        return createEnterSpan(rpcId, traceId).apply {
+        var traceId = (getCurrentSpan()?.traceId?: request?.getHeader(HEADER_TRACE_ID))?: getTraceId().also { addHeader(request,it) }
+        var span = getCurrentSpan()?: Span(traceId)
+        return createEnterSpan(span).apply {
             this.className = className
             this.methodName = method.name
             this.parameterInfo = collectParameters(method,args)

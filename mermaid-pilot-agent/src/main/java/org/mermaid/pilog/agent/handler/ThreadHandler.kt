@@ -21,9 +21,8 @@ import java.util.concurrent.ForkJoinTask
 class ThreadHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         //获取当前traceId
-        val traceId = getTraceId()
-        var spand : Span? = getCurrentSpan()
-        return createEnterSpan(spand?.spanId,traceId).apply {
+        var span : Span? = getCurrentSpan()?:Span(getTraceId())
+        return createEnterSpan(span).apply {
             this.className = className
             this.methodName = method.name
             this.type = HandlerType.THREAD.name

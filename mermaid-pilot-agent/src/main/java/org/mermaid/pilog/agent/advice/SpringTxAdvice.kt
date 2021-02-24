@@ -1,7 +1,6 @@
 package org.mermaid.pilog.agent.advice
 
 import net.bytebuddy.asm.Advice
-import org.mermaid.pilog.agent.common.getTraceId
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.handler.collectParameters
 import org.mermaid.pilog.agent.model.createEnterSpan
@@ -24,7 +23,7 @@ object SpringTxAdvice {
     fun enter(@Advice.Origin("#t") className : String,
          @Advice.Origin method: Method,
          @Advice.AllArguments args: Array<*>) {
-        createEnterSpan(getCurrentSpan()?.let { it.spanId }, getTraceId()).apply {
+        createEnterSpan(getCurrentSpan()).apply {
             this.methodName = method.name
             this.className = className
             this.parameterInfo = collectParameters(method,args)

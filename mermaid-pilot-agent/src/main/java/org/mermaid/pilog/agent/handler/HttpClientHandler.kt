@@ -1,8 +1,5 @@
 package org.mermaid.pilog.agent.handler
 
-import org.mermaid.pilog.agent.common.generateSpanId
-import org.mermaid.pilog.agent.common.getTraceId
-import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
@@ -10,8 +7,6 @@ import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.springframework.http.HttpRequest
 import java.lang.reflect.Method
-import java.time.Duration
-import java.time.LocalDateTime
 
 /**
  * description: http客户端处理
@@ -22,7 +17,7 @@ import java.time.LocalDateTime
  * @version 1.0
  */
 class HttpClientHandler : IHandler {
-    override fun before(className: String?, method: Method, args: Array<*>?): Span  = createEnterSpan(getCurrentSpan()?.let { it.spanId },getTraceId()).apply {
+    override fun before(className: String?, method: Method, args: Array<*>?): Span  = createEnterSpan(getCurrentSpan()).apply {
         this.className = className
         this.methodName = method.name
         this.requestMethod = requestMethod

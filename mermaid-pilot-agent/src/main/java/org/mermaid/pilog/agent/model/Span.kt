@@ -1,16 +1,14 @@
 package org.mermaid.pilog.agent.model
 
-import com.alibaba.fastjson.JSONObject
 import org.mermaid.pilog.agent.common.generateSpanId
-import org.mermaid.pilog.agent.common.generateTraceId
+import org.mermaid.pilog.agent.common.getTraceId
 import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.handler.getAppName
+import org.mermaid.pilog.agent.plugin.factory.logger
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.getOrSet
 
@@ -26,7 +24,7 @@ class Span {
     var type: String? = ""
     var traceId : String
     var spanId: String = ""
-    var parentId:String? = null
+    var parentId:String = ROOT_SPAN_ID
     var seq : Int = 0
     var startTime: LocalDateTime = LocalDateTime.now()
     var endTime: LocalDateTime? = null
@@ -46,15 +44,13 @@ class Span {
         this.traceId = traceId
     }
 
-    override fun toString(): String {
-        return JSONObject.toJSONString(this)
-    }
+    override fun toString(): String  = """{"type":"$type","traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","seq":"$seq","startTime":"$startTime","endTime":"$endTime","parameterInfo":"$parameterInfo","className":"$className","methodName":"$methodName","costTime":"$costTime","requestUri":"$requestUri","requestMethod":"$requestMethod","appName":"$appName","hostName":"$hostName","throwable":"$throwable"}""".trim()
 }
 
 val localSpan = ThreadLocal<Stack<Span>>()
 
-val ROOT_SPAN_ID = "0"
-fun createEnterSpan(rpcId: String?) : Span  = Span(generateTraceId()).apply {
+const val ROOT_SPAN_ID = "0"
+fun createEnterSpan(rpcId: String?) : Span  = Span(getTraceId()).apply {
     spanId = generateSpanId(rpcId)
     startTime = LocalDateTime.now()
     val stack = localSpan.get()
@@ -65,18 +61,27 @@ fun createEnterSpan(rpcId: String?) : Span  = Span(generateTraceId()).apply {
 }
 val lock = ReentrantLock()
 fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = lock.lock().let {
-    Span(traceId?: generateTraceId()).apply {
+    Span(getTraceId()).apply {
         this.spanId = generateSpanId(rpcId)
-        this.seq += 1
         rpcId?.let { parentId = it }
         startTime = LocalDateTime.now()
         localSpan.getOrSet { Stack() }.push(this)
     }.apply { lock.unlock() }
 }
 
+fun createEnterSpan(currentSpan: Span?) = lock.lock().let {
+    Span(getTraceId()).apply {
+        this.spanId = generateSpanId(currentSpan?.spanId?.also { this.parentId = it })
+        this.startTime = LocalDateTime.now()
+        currentSpan?.let { this.seq += (it.seq?: 1) }
+        localSpan.getOrSet { Stack() }.push(this)
+    }.also {
+        lock.unlock() }
+}
 fun getCurrentSpan() : Span? = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
 fun getCurrentSpanAndRemove(throwable: Throwable?) = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
+    logger.info("取出span：${toString()}")
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
     this.throwable = throwable

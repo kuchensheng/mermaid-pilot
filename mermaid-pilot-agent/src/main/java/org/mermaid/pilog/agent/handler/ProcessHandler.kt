@@ -20,7 +20,7 @@ import java.time.LocalDateTime
  * @version 1.0
  */
 class ProcessHandler : IHandler {
-    override fun before(className: String?, method: Method, args: Array<*>?): Span = createEnterSpan(getCurrentSpan()?.spanId, getTraceId()).apply {
+    override fun before(className: String?, method: Method, args: Array<*>?): Span = createEnterSpan(getCurrentSpan()).apply {
         this.type = HandlerType.PROCESS.name
         this.methodName = method.name
         this.parameterInfo = collectParameters(method,args)
