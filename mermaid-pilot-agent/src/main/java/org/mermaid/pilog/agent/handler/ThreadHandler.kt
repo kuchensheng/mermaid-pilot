@@ -1,6 +1,7 @@
 package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.getTraceId
+import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
@@ -23,11 +24,9 @@ class ThreadHandler : IHandler {
         val traceId = getTraceId()
         var spand : Span? = getCurrentSpan()
         return createEnterSpan(spand?.spanId,traceId).apply {
-            startTime = LocalDateTime.now()
-            appName = getAppName()
             this.className = className
             this.methodName = method.name
-            this.type = "thread"
+            this.type = HandlerType.THREAD.name
         }
     }
 

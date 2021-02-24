@@ -21,16 +21,14 @@ import java.time.LocalDateTime
  */
 class ProcessHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span = createEnterSpan(getCurrentSpan()?.spanId, getTraceId()).apply {
-        this.startTime = LocalDateTime.now()
         this.type = HandlerType.PROCESS.name
         this.methodName = method.name
         this.parameterInfo = collectParameters(method,args)
-        this.appName = getAppName()
         this.className = className
     }
 
     override fun after(className: String?, method: Method, array: Array<*>?, result: Any?, thrown: Throwable?) {
-        getCurrentSpanAndRemove()
+        getCurrentSpanAndRemove(thrown)
     }
 }
 

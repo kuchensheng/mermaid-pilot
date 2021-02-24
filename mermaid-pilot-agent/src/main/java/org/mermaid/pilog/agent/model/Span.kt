@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.generateTraceId
 import org.mermaid.pilog.agent.common.produce
+import org.mermaid.pilog.agent.handler.getAppName
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.time.Duration
@@ -36,7 +37,7 @@ class Span {
     var costTime : Long = 0
     var requestUri:String? = null
     var requestMethod: String? = null
-    var appName: String? = null
+    var appName: String? = getAppName()
     var throwable: Throwable? = null
     val hostName : String = Inet4Address.getLocalHost().hostAddress
 
@@ -75,8 +76,9 @@ fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = lock.lock().let 
 
 fun getCurrentSpan() : Span? = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
-fun getCurrentSpanAndRemove() = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
+fun getCurrentSpanAndRemove(throwable: Throwable?) = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
+    this.throwable = throwable
     produce(this)
 }

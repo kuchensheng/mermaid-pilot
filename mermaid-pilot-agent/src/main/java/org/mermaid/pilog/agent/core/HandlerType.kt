@@ -9,5 +9,5 @@ package org.mermaid.pilog.agent.core
  * @version 1.0
  */
 enum class HandlerType {
-    REQ,HTTPCLIENT,PROCESS,SERVLET,SPRINGWEB,JDBC
+    REQ,HTTPCLIENT,PROCESS,SERVLET,SPRINGWEB,JDBC,SPRINGTXEND,THREAD
 }

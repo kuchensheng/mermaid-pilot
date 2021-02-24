@@ -58,12 +58,9 @@ class ServletHandler : IHandler {
         return createEnterSpan(parentId, traceId).apply {
             this.type = HandlerType.SERVLET.name
             this.className = className
-            this.startTime = LocalDateTime.now()
             this.parameterInfo = getParameterInfo(request)
             this.requestUri = uri
             this.requestMethod = request?.method
-            this.appName = getAppName()
-            this.parentId = parentId
         }
     }
 
@@ -72,7 +69,7 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpanAndRemove()
+        getCurrentSpanAndRemove(thrown)
     }
 }
 

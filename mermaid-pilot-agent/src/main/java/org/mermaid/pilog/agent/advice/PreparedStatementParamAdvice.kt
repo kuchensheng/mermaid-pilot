@@ -34,18 +34,13 @@ object PreparedStatementParamAdvice {
             this.methodName = method.name
             this.type = HandlerType.JDBC.name
             this.parameterInfo = collectParameters(method,args)
-            this.appName = getAppName()
             this.className = className
-            this.startTime = LocalDateTime.now()
         }
     }
 
     @Advice.OnMethodExit(onThrowable = Throwable::class)
     @JvmStatic
-    fun exit(@Advice.Origin("#t") className: String,
-             @Advice.Origin method: Method,
-             @Advice.AllArguments args: Array<*>,
-             @Advice.Thrown throwable: Throwable?) {
-        getCurrentSpanAndRemove()
+    fun exit(@Advice.Thrown throwable: Throwable?) {
+        getCurrentSpanAndRemove(throwable)
     }
 }

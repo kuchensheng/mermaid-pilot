@@ -40,12 +40,9 @@ class SpringWebHandler : IHandler {
         return createEnterSpan(rpcId, traceId).apply {
             this.className = className
             this.methodName = method.name
-            this.startTime = LocalDateTime.now()
             this.parameterInfo = parameterInfo
             this.requestUri = request?.requestURI
             this.requestMethod = request?.method
-            this.appName = getAppName()
-            this.parentId = rpcId
         }
     }
 
@@ -53,6 +50,6 @@ class SpringWebHandler : IHandler {
         //todo 如果thrown不为空，则必须记录，否则可通过配置进行记录过滤
         val response = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpanAndRemove()
+        getCurrentSpanAndRemove(thrown)
     }
 }
