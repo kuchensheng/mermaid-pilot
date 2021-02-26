@@ -7,6 +7,7 @@ import org.mermaid.pilog.agent.plugin.httpclient.OkHttpClient3xPlugin
 import org.mermaid.pilog.agent.plugin.jdbc.JdbcPlugin
 import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
+import org.mermaid.pilog.agent.plugin.redis.RedisPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
 import org.mermaid.pilog.agent.plugin.springcloud.gateway.FilterPlugin
 import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
@@ -30,7 +31,8 @@ enum class PluginName {
 //    THREADPLUGIN("thread",ThreadPlugin),
     SPRINGWEB("springweb",SpringWebPlugin),
     JDBC("jdbc",JdbcPlugin),
-//    GATEWAYFILTER("gateway.filter",FilterPlugin)
+//    GATEWAYFILTER("gateway.filter",FilterPlugin),
+//    REDIS("redis",RedisPlugin),
     ;
 
     var code: String

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.http.HttpRequest
+import org.springframework.web.server.ServerWebExchange
 import java.lang.reflect.Method
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -32,6 +33,7 @@ class ServletHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = args?.get(0) as HttpServletRequest
         val uri =  request.requestURI.toString()
+        val remoteIp = getOrininalIp(request)
         //获取上一个span的spanId,这个Id是本次span的parentId
         request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also { addHeader(request,it)}
 
@@ -65,6 +67,16 @@ fun addHeader(request: HttpServletRequest?, traceId: String) = request?.let { ob
     putHeader(HEADER_TRACE_ID,traceId)
 } }
 
+fun getOrininalIp(request: HttpServletRequest) : String {
+    var ip = request.getHeader("X-Forwarded-For")
+    if (!(null == ip || "unknown".equals(ip,true))) {
+        //多次反向代理后有多个IP值，第一个是真实IP
+        return if (ip.contains(",")) ip.split(",").first() else ip
+    }
+    ip = request.getHeader("X-Real-IP")
+    if (!(null == ip || "unknown".equals(ip,true))) return ip
+    return request.remoteAddr
+}
 fun getAppName() : String? = object : ApplicationContextAware {
     var appName:String? = null
     override fun setApplicationContext(applicationContext: ApplicationContext) {
