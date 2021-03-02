@@ -88,7 +88,7 @@ fun getOrininalIp(request: HttpServletRequest) : String {
 @Autowired
 internal var env : Environment? = null
 
-fun getAppName() : String  = env?.getProperty("spring.application.name")?.also { logger.info("获取到的appName：$it") }?:""
+fun getAppName() : String  = env?.getProperty("spring.application.name")?.also { logger.info("获取到的appName：$it") }?: System.getProperty("application.name","")
 
 fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP)
 
