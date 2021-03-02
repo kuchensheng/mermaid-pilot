@@ -5,6 +5,7 @@ import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.report.IReporter
 import org.mermaid.pilog.agent.report.getReporter
+import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.locks.ReentrantLock

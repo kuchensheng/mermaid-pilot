@@ -7,10 +7,7 @@ import org.mermaid.pilog.agent.model.*
 import org.mermaid.pilog.agent.plugin.factory.logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
-import org.springframework.context.ApplicationContextAware
-import org.springframework.http.HttpRequest
-import org.springframework.web.server.ServerWebExchange
+import org.springframework.core.env.Environment
 import java.lang.reflect.Method
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -88,7 +85,10 @@ fun getOrininalIp(request: HttpServletRequest) : String {
     return request.remoteAddr
 }
 
-fun getAppName() : String  = LocalAppConfig.getAppName()?.also { logger.info("获取到的appName：$it") }?:""
+@Autowired
+internal var env : Environment? = null
+
+fun getAppName() : String  = env?.getProperty("spring.application.name")?.also { logger.info("获取到的appName：$it") }?:""
 
 fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP)
 

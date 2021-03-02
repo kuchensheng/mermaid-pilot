@@ -1,9 +1,11 @@
 package org.mermaid.pilog.agent.config
 
 import org.mermaid.pilog.agent.plugin.factory.logger
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 
 /**
  * description: TODO
@@ -13,25 +15,11 @@ import org.springframework.context.annotation.Configuration
  * @date 2021/3/215:36
  * @version 1.0
  */
-object LocalAppConfig : ApplicationContextAware {
-    private var applicationContext : ApplicationContext? = null
-    override fun setApplicationContext(p0: ApplicationContext) {
-        this.applicationContext = p0
-    }
-    fun getAppName() : String? {
-        logger.info("获取应用名称,applicationContext is null?[${applicationContext?:false}],applicationContext.applicationName:${applicationContext?.applicationName},applicationName:${applicationContext?.environment?.getProperty("spring.application.name")}")
-        return (applicationContext?.environment?.getProperty("spring.application.name")) ?: applicationContext?.applicationName
-    }
+@Configuration
+open class LocalAppConfig {
+    @Autowired
+    internal lateinit var env : Environment
+
+    fun getAppName() : String = env.getProperty("spring.application.name")
 }
-//@Configuration
-//open class LocalAppConfig() : ApplicationContextAware {
-//    private lateinit var applicationContext : ApplicationContext
-//
-//    override fun setApplicationContext(applicationContext: ApplicationContext) {
-//        this.applicationContext = applicationContext
-//    }
-//
-//
-//    fun getAppName() : String = applicationContext.environment.getProperty("spring.application.name")
-//}
 
