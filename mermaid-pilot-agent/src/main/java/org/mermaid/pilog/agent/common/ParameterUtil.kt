@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletRequest
  * @version 1.0
  */
 
+/**
+ * 方法参数信息收集
+ */
 fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,Any?>?  = mutableMapOf<String,Any?>().apply {
     try {
         method.parameters?.indices?.forEach {
@@ -24,6 +27,9 @@ fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,Any?>
     }
 }
 
+/**
+ * 获取Servlet请求参数
+ */
 fun getParameterInfo(request: HttpServletRequest): MutableMap<String, Any?>? {
     val parameterMap = hashMapOf<String,Any?>()
     //读取url参数信息
