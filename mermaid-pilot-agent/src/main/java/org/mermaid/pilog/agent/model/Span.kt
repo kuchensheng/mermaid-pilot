@@ -22,6 +22,8 @@ import kotlin.concurrent.getOrSet
  * @version 1.0
  */
 class Span {
+    var originAppName: String = ""
+    var originIp: String = ""
     var type: String? = ""
     var traceId : String
     var spanId: String = ""
@@ -38,18 +40,23 @@ class Span {
     var requestMethod: String? = null
     var appName: String? = getAppName()
     var throwable: Throwable? = null
-    val hostName : String = Inet4Address.getLocalHost().hostAddress
+    val hostName : String = getHostName()
 
     @JvmOverloads
     constructor(traceId: String) {
         this.traceId = traceId
     }
 
-    override fun toString(): String  = """{"type":"$type","traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","seq":"$seq","startTime":"$startTime","endTime":"$endTime","parameterInfo":"$parameterInfo","className":"$className","methodName":"$methodName","costTime":"$costTime","requestUri":"$requestUri","requestMethod":"$requestMethod","appName":"$appName","hostName":"$hostName","throwable":"$throwable"}""".trim()
+    override fun toString(): String  = """
+        {"traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","type":"$type","seq":"$seq",
+        "startTime":"$startTime","endTime":"$endTime","className":"$className","methodName":"$methodName",
+        "originalIp":"$originIp","originalApp":"$originAppName","costTime":",$costTime,",
+        "requestUri":"$requestUri","requestMethod":"$requestMethod","appName":"$appName","hostName":"$hostName",
+        "parameterInfo":"$parameterInfo","throwable":"$throwable"}""".trimIndent().trim()
 }
 
 val localSpan = ThreadLocal<Stack<Span>>()
-
+fun getHostName() = Inet4Address.getLocalHost().hostAddress
 const val ROOT_SPAN_ID = "0"
 fun createEnterSpan(rpcId: String?) : Span  = Span(getTraceId()).apply {
     spanId = generateSpanId(rpcId)

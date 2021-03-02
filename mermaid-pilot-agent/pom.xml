@@ -6,7 +6,7 @@
 
   <groupId>org.mermaid</groupId>
   <artifactId>mermaid-pilot-agent</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
 
   <name>mermaid-pilot-agent</name>
   <!-- FIXME change it to the project's website -->
@@ -48,14 +48,17 @@
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-reflect</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib-jdk8</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib-common</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.json-lib</groupId>
@@ -66,21 +69,24 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
-
   <build>
 
     <plugins>

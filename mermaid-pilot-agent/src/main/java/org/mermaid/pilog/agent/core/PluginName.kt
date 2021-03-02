@@ -1,10 +1,7 @@
 package org.mermaid.pilog.agent.core
 
 import org.mermaid.pilog.agent.plugin.IPlugin
-import org.mermaid.pilog.agent.plugin.httpclient.HttpClient3Plugin
-import org.mermaid.pilog.agent.plugin.httpclient.HttpClient4Plugin
-import org.mermaid.pilog.agent.plugin.httpclient.JdkHttpURLConnectionPlugin
-import org.mermaid.pilog.agent.plugin.httpclient.OkHttpClient3xPlugin
+import org.mermaid.pilog.agent.plugin.httpclient.*
 import org.mermaid.pilog.agent.plugin.jdbc.JdbcPlugin
 import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
@@ -34,7 +31,8 @@ enum class PluginName {
     JDBC("jdbc",JdbcPlugin),
     GATEWAYFILTER("gateway.filter",FilterPlugin),
     REDIS("redis",RedisPlugin),
-    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
+    HUTOOLCLIENT("hutool",HutoolHttpClientPlugin)
+//    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
     ;
 
     var code: String

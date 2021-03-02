@@ -83,6 +83,20 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <distributionManagement>
+    <repository>
+      <!-- 该id对应1)中<server>里的id nexus-releases -->
+      <id>nexus-releases</id>
+      <name>Nexus Release Repository</name>
+      <url>http://10.30.30.3:8081//repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <!-- 该id对应1)中<server>里的id nexus-snapshots -->
+      <id>nexus-snapshots</id>
+      <name>Nexus Snapshot Repository</name>
+      <url>http://10.30.30.3:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->

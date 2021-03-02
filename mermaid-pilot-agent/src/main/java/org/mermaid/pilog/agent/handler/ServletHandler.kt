@@ -1,12 +1,12 @@
 package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.*
+import org.mermaid.pilog.agent.config.LocalAppConfig
 import org.mermaid.pilog.agent.core.HandlerType
-import org.mermaid.pilog.agent.model.Span
-import org.mermaid.pilog.agent.model.createEnterSpan
-import org.mermaid.pilog.agent.model.getCurrentSpan
-import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
+import org.mermaid.pilog.agent.model.*
+import org.mermaid.pilog.agent.plugin.factory.logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.http.HttpRequest
@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequestWrapper
  */
 const val HEADER_TRACE_ID = "t-header-trace-id"
 const val HEADER_SPAN_ID = "t-header-span-id"
+const val HEADER_REMOTE_IP = "t-remote-ip"
+const val HEADER_REMOTE_APP = "t-remote-app"
 val parameterNames = hashSetOf("sec-fetch-mode","sec-fetch-site","accept-language","sec-fetch-user","cache-control","user-agent","sec-fetch-dest","host","accept-encoding")
 class ServletHandler : IHandler {
     private val logger = LoggerFactory.getLogger(ServletHandler::class.java)
@@ -34,10 +36,17 @@ class ServletHandler : IHandler {
         val request = args?.get(0) as HttpServletRequest
         val uri =  request.requestURI.toString()
         val remoteIp = getOrininalIp(request)
+        val remoteAppName = getRemoteAppName(request)
         //获取上一个span的spanId,这个Id是本次span的parentId
-        request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also { addHeader(request,it)}
+        request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also {
+            addHeader(request, HEADER_TRACE_ID,it)
+            addHeader(request, HEADER_REMOTE_IP, getHostName())
+            addHeader(request, HEADER_REMOTE_APP, getAppName())
+        }
 
         return createEnterSpan(getCurrentSpan()).apply {
+            this.originIp = remoteIp
+            this.originAppName = remoteAppName
             this.type = HandlerType.SERVLET.name
             this.className = className
             this.parameterInfo = getParameterInfo(request)
@@ -56,7 +65,7 @@ class ServletHandler : IHandler {
     }
 }
 
-fun addHeader(request: HttpServletRequest?, traceId: String) = request?.let { object : HttpServletRequestWrapper(request) {
+fun addHeader(request: HttpServletRequest?, name: String, value: String) = request?.let { object : HttpServletRequestWrapper(request) {
     private val customHeaders = hashMapOf<String,String>()
     fun putHeader(name:String,value: String) {customHeaders[name] = value}
     override fun getHeader(name: String?): String = customHeaders[name]?:request.getHeader(name)
@@ -64,10 +73,11 @@ fun addHeader(request: HttpServletRequest?, traceId: String) = request?.let { ob
         request.headerNames.iterator().forEach { add(it) }
     })
 }.run {
-    putHeader(HEADER_TRACE_ID,traceId)
+    putHeader(name,value)
 } }
 
 fun getOrininalIp(request: HttpServletRequest) : String {
+    request.getHeader("t-remote-ip")?.run { return this }
     var ip = request.getHeader("X-Forwarded-For")
     if (!(null == ip || "unknown".equals(ip,true))) {
         //多次反向代理后有多个IP值，第一个是真实IP
@@ -77,11 +87,8 @@ fun getOrininalIp(request: HttpServletRequest) : String {
     if (!(null == ip || "unknown".equals(ip,true))) return ip
     return request.remoteAddr
 }
-fun getAppName() : String? = object : ApplicationContextAware {
-    var appName:String? = null
-    override fun setApplicationContext(applicationContext: ApplicationContext) {
-        appName = applicationContext.applicationName
-    }
-}.run { appName }
 
+fun getAppName() : String  = LocalAppConfig.getAppName()?.also { logger.info("获取到的appName：$it") }?:""
+
+fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP)
 

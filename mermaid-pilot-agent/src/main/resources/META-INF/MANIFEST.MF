@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
 Premain-Class: org.mermaid.pilog.agent.PilotAgent
+Agent-Class: org.mermaid.pilog.agent.PilotAgent
 Can-Redefine-Classes: true
 Can-Retransform-Classes: true

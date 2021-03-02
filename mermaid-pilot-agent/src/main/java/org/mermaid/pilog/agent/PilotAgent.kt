@@ -42,6 +42,19 @@ class PilotAgent {
 
         }
 
+        @JvmStatic
+        fun agentmain(args: String?, inst: Instrumentation) {
+            println("基于javaagent链路跟踪PIVOT信息收集器")
+            println("=================================================================")
+            loadPlugin()
+            loadHandler()
+            initialize()
+            var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
+                    .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
+            pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
+            agentBuilder.installOn(inst)
+        }
+
         private fun notMatcher(): ElementMatcher.Junction<TypeDescription>  = ElementMatchers.not(ElementMatchers.nameContains("intellij"))
 
         private fun builderListener(): AgentBuilder.Listener? = object : AgentBuilder.Listener {

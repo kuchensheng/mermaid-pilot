@@ -26,6 +26,8 @@ object JdkHttpURLConnectionPlugin : IPlugin {
                 .and(ElementMatchers.named<TypeDescription>("sun.net.www.protocol.http.HttpURLConnection").or(ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named("sun.net.www.protocol.http.HttpURLConnection"))))
 
         override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
+                .and(ElementMatchers.isPublic())
+                .and(ElementMatchers.not(ElementMatchers.isConstructor()))
                 .and(ElementMatchers.named<MethodDescription>("connect")
                         //获取的输出流对象方法
                         .or(ElementMatchers.named<MethodDescription>("getOutputStream"))

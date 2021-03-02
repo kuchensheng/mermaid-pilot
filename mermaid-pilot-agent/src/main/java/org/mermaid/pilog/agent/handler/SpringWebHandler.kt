@@ -25,7 +25,7 @@ class SpringWebHandler : IHandler {
     }.run { appName }
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
-        var traceId = (getCurrentSpan()?.traceId?: request?.getHeader(HEADER_TRACE_ID))?: getTraceId().also { addHeader(request,it) }
+        var traceId = (getCurrentSpan()?.traceId?: request?.getHeader(HEADER_TRACE_ID))?: getTraceId().also { addHeader(request, HEADER_TRACE_ID,it) }
         var span = getCurrentSpan()?: Span(traceId)
         return createEnterSpan(span).apply {
             this.className = className
