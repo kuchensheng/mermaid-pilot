@@ -43,4 +43,4 @@ fun getParameterInfo(request: HttpServletRequest): MutableMap<String, Any?>? {
     return parameterMap
 }
 
-fun getParameterInfo(request: HttpRequest?): Map<String, Any?>?  = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }
+fun getParameterInfo(request: HttpRequest?): MutableMap<String, Any?>?  = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }

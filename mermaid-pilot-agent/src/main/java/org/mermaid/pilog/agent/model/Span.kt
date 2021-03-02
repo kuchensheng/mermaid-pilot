@@ -82,9 +82,9 @@ fun createEnterSpan(currentSpan: Span?) = lock.lock().let {
 fun getCurrentSpan() : Span? = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
 fun getCurrentSpanAndRemove(throwable: Throwable?) = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
-    logger.info("取出span：${toString()}")
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
     this.throwable = throwable
+    logger.info("取出span：${toString()}")
     produce(this)
 }

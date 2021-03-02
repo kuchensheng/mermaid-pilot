@@ -2,11 +2,11 @@ package org.mermaid.pilog.agent.advice
 
 import net.bytebuddy.asm.Advice
 import net.bytebuddy.implementation.bytecode.assign.Assigner
+import org.mermaid.pilog.agent.common.getParameterInfo
 import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
-import org.mermaid.pilog.agent.plugin.factory.logger
 import org.springframework.web.server.ServerWebExchange
 import java.lang.reflect.Method
 
@@ -25,32 +25,25 @@ object SpringCloudGatewayFilterAdvice {
               @Advice.Origin method: Method,
               @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) exchange: Any?,
               @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) chain : Any?) {
-//        exchange?.let {
-//            if (exchange is ServerWebExchange) {
-//                createEnterSpan(getCurrentSpan()).apply {
-//                    this.className = className
-//                    this.methodName = method.name
-//                    this.requestUri = exchange?.let { it.request.uri.path }
-//                    this.requestMethod = exchange?.let { it.request.methodValue }
-//                    this.parameterInfo = getParameterInfo(exchange?.request)
-//                    this.type = "GATEWAY"
-//                }.run {
-//                    produce(this)
-//                }
-//            }
-//        }
+        exchange?.let {
+            if (exchange is ServerWebExchange) {
+                createEnterSpan(getCurrentSpan()).apply {
+                    this.className = className
+                    this.methodName = method.name
+                    this.requestUri = exchange?.let { it.request.uri.path }
+                    this.requestMethod = exchange?.let { it.request.methodValue }
+                    this.parameterInfo = getParameterInfo(exchange?.request)
+                    this.type = "GATEWAY"
+                }.run {
+                    produce(this)
+                }
+            }
+        }
 
 
     }
 
     @JvmStatic
     @Advice.OnMethodExit(onThrowable = Throwable::class)
-    fun exit(@Advice.Thrown throwable: Throwable,
-             @Advice.Origin("#t") className: String,
-             @Advice.Origin method: Method,
-             @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) exchange: Any?,
-             @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) chain : Any?) {
-//        println("className : ${className},methodName: ${method.name}")
-//        if (exchange is ServerWebExchange) getCurrentSpanAndRemove(throwable)
-    }
+    fun exit(@Advice.Thrown throwable: Throwable, ) = getCurrentSpanAndRemove(throwable)
 }
