@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
  * @version 1.0
  */
 
-fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,*>?  = hashMapOf<String,Any?>().apply {
+fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,Any?>?  = mutableMapOf<String,Any?>().apply {
     try {
         method.parameters?.indices?.forEach {
             put(method.parameters[it].name, args?.get(it))

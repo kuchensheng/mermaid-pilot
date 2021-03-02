@@ -29,7 +29,7 @@ class Span {
     var seq : Int = 0
     var startTime: LocalDateTime = LocalDateTime.now()
     var endTime: LocalDateTime? = null
-    var parameterInfo: MutableMap<String,*>? = null
+    var parameterInfo: MutableMap<String,Any?>? = null
     var result:Any? = null
     var className: String? = null
     var methodName: String = ""
