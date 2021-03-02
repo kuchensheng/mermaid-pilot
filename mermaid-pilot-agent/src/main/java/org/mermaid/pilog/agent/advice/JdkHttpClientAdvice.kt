@@ -22,10 +22,7 @@ object JdkHttpClientAdvice {
         this.className = className
         this.methodName = method.name
         if (method.name == "setRequestMethod") this.requestMethod = args[0].toString()
-        if (method.name == "setRequestProperty" || method.name == "addRequestProperty") {
-            if (this.parameterInfo.isNullOrEmpty()) this.parameterInfo = collectParameters(method, args)
-            else collectParameters(method,args)?.let { it.forEach { (t, value) -> this.parameterInfo!![t] = value } }
-        }
+        if (method.name == "setRequestProperty" || method.name == "addRequestProperty") collectParameters(method,args)?.let { it.forEach { (t, value) -> this.parameterInfo!![t] = value } }
 
     }
 

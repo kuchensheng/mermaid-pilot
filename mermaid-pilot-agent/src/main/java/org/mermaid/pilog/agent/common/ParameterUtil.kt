@@ -17,21 +17,20 @@ import javax.servlet.http.HttpServletRequest
 /**
  * 方法参数信息收集
  */
-fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,Any?>?  = mutableMapOf<String,Any?>().apply {
-    try {
-        method.parameters?.indices?.forEach {
-            put(method.parameters[it].name, args?.get(it))
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
+fun collectParameters(method: Method, args: Array<*>?) : MutableMap<String,Any?>  = (args?: arrayOf<Any>()).let { method.parameters.mapIndexed { index, parameter -> parameter.name to it[index] }.toMap().toMutableMap() }
+//        mutableMapOf<String,Any?>().apply {
+//    try {
+//        method.parameters?.indices?.forEach { put(method.parameters[it].name, args?.get(it)) }
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//    }
+//}
 
 /**
  * 获取Servlet请求参数
  */
-fun getParameterInfo(request: HttpServletRequest): MutableMap<String, Any?>? {
-    val parameterMap = hashMapOf<String,Any?>()
+fun getParameterInfo(request: HttpServletRequest): MutableMap<String, Any?> {
+    val parameterMap = mutableMapOf<String,Any?>()
     //读取url参数信息
     request.parameterNames?.iterator()?.forEach {
         parameterMap[it] = request.getParameter(it)
@@ -43,4 +42,4 @@ fun getParameterInfo(request: HttpServletRequest): MutableMap<String, Any?>? {
     return parameterMap
 }
 
-fun getParameterInfo(request: HttpRequest?): MutableMap<String, Any?>?  = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }
+fun getParameterInfo(request: HttpRequest?): MutableMap<String, Any?> = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }
