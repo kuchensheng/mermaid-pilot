@@ -1,8 +1,8 @@
 package org.mermaid.pilog.agent.advice
 
 import net.bytebuddy.asm.Advice
+import org.mermaid.pilog.agent.common.collectParameters
 import org.mermaid.pilog.agent.core.HandlerType
-import org.mermaid.pilog.agent.handler.collectParameters
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove

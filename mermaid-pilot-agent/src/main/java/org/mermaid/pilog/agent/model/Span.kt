@@ -10,6 +10,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.collections.HashMap
 import kotlin.concurrent.getOrSet
 
 /**
@@ -28,7 +29,7 @@ class Span {
     var seq : Int = 0
     var startTime: LocalDateTime = LocalDateTime.now()
     var endTime: LocalDateTime? = null
-    var parameterInfo: Map<String,Any?>? = null
+    var parameterInfo: MutableMap<String,*>? = null
     var result:Any? = null
     var className: String? = null
     var methodName: String = ""

@@ -84,17 +84,4 @@ fun getAppName() : String? = object : ApplicationContextAware {
     }
 }.run { appName }
 
-fun getParameterInfo(request: HttpServletRequest): Map<String, Any?>? {
-    val parameterMap = hashMapOf<String,Any?>()
-    //读取url参数信息
-    request.parameterNames?.iterator()?.forEach {
-        parameterMap[it] = request.getParameter(it)
-    }
-    request.headerNames?.iterator()?.forEach {
-        if (!parameterNames.contains(it)) parameterMap[it] = request.getHeader(it)
-    }
-    request.reader.readText()?.let { parameterMap["requestBody"] = it }
-    return parameterMap
-}
 
-fun getParameterInfo(request: HttpRequest?): Map<String, Any?>?  = hashMapOf<String,Any?>().apply { request?.headers?.filter { !parameterNames.contains(it) }?.run { putAll(this) } }

@@ -1,5 +1,6 @@
 package org.mermaid.pilog.agent.handler
 
+import org.mermaid.pilog.agent.common.collectParameters
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan

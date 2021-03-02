@@ -3,7 +3,6 @@ package org.mermaid.pilog.agent.advice
 import net.bytebuddy.asm.Advice
 import net.bytebuddy.implementation.bytecode.assign.Assigner
 import org.mermaid.pilog.agent.common.produce
-import org.mermaid.pilog.agent.handler.getParameterInfo
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove

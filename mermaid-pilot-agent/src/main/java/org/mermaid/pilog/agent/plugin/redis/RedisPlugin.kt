@@ -26,6 +26,7 @@ object RedisPlugin : IPlugin{
         override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
                 .and(ElementMatchers.not(ElementMatchers.isConstructor()))
                 .and(ElementMatchers.isPublic())
+                .and(ElementMatchers.named<MethodDescription>("execute"))
     })
 
     override fun interceptorAdviceClass(): Class<*> = RedisAdvice::class.java

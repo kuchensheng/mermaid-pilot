@@ -1,15 +1,12 @@
 package org.mermaid.pilog.agent.handler
 
-import org.mermaid.pilog.agent.common.getTraceId
-import org.mermaid.pilog.agent.common.produce
+import org.mermaid.pilog.agent.common.collectParameters
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
 import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import java.lang.reflect.Method
-import java.time.Duration
-import java.time.LocalDateTime
 
 /**
  * description: 这对方法的拦截，目前是针对了@Service注解的类的public方法进行的拦截
@@ -32,12 +29,3 @@ class ProcessHandler : IHandler {
     }
 }
 
-fun collectParameters(method: Method,args: Array<*>?) : Map<String,*>?  = hashMapOf<String,Any?>().apply {
-    try {
-        method.parameters?.indices?.forEach {
-            put(method.parameters[it].name, args?.get(it))
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
