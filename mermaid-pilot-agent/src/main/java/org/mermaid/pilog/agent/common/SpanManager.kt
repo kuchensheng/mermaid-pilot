@@ -7,6 +7,7 @@ import org.mermaid.pilog.agent.report.IReporter
 import org.mermaid.pilog.agent.report.getReporter
 import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.locks.ReentrantLock
 
@@ -19,13 +20,13 @@ import java.util.concurrent.locks.ReentrantLock
  * @version 1.0
  */
 val threadLocalSpan = ThreadLocal<Stack<Span>>()
-val blockingQueue = LinkedBlockingQueue<Span>(10240)
+val blockingQueue = ConcurrentLinkedQueue<Span>()
 
 fun createEntrySpan(type: HandlerType?,rpcId: String?) = createSpan(type,rpcId)
 
 fun produce(span: Span) = blockingQueue.add(span)
 
-fun consume() : Span? = blockingQueue.take()
+fun consume() : Span? = blockingQueue.poll()
 
 private fun createSpan(type: HandlerType?,rpcId: String?) {
     var stack = threadLocalSpan.get()

@@ -29,9 +29,8 @@ enum class PluginName {
 //    THREADPLUGIN("thread",ThreadPlugin),
     SPRINGWEB("springweb",SpringWebPlugin),
     JDBC("jdbc",JdbcPlugin),
-    GATEWAYFILTER("gateway.filter",FilterPlugin),
+//    GATEWAYFILTER("gateway.filter",FilterPlugin),
     REDIS("redis",RedisPlugin),
-    HUTOOLCLIENT("hutool",HutoolHttpClientPlugin)
 //    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
     ;
 

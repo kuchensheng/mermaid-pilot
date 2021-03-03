@@ -2,10 +2,7 @@ package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.collectParameters
 import org.mermaid.pilog.agent.core.HandlerType
-import org.mermaid.pilog.agent.model.Span
-import org.mermaid.pilog.agent.model.createEnterSpan
-import org.mermaid.pilog.agent.model.getCurrentSpan
-import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
+import org.mermaid.pilog.agent.model.*
 import org.springframework.http.HttpRequest
 import java.lang.reflect.Method
 
@@ -30,6 +27,8 @@ class HttpClientHandler : IHandler {
                 span.requestMethod = it.methodValue
                 if (!it.headers.contains(HEADER_TRACE_ID)) {
                     it.headers.set(HEADER_TRACE_ID,span.traceId)
+                    it.headers.set(HEADER_REMOTE_IP, getHostName())
+                    it.headers.set(HEADER_REMOTE_APP, getAppName())
                     span.requestUri = it.uri.toString()
                 }
             }

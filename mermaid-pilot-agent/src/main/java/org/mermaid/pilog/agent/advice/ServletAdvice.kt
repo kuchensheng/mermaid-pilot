@@ -4,6 +4,7 @@ import net.bytebuddy.asm.Advice
 import net.bytebuddy.implementation.bytecode.assign.Assigner
 import org.mermaid.pilog.agent.handler.ServletHandler
 import org.mermaid.pilog.agent.handler.getHandler
+import org.mermaid.pilog.agent.plugin.factory.logger
 import java.lang.Exception
 import java.lang.reflect.Method
 
@@ -23,6 +24,7 @@ class ServletAdvice {
                   @Advice.Origin method: Method,
                   @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
                   @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
+            logger.info("执行servlet通知方法")
             getHandler(ServletHandler::class.java).before(className,method, arrayOf(req,resp))
         }
 

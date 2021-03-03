@@ -8,6 +8,7 @@ import org.mermaid.pilog.agent.plugin.factory.logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
+import org.springframework.web.server.ServerWebExchange
 import java.lang.reflect.Method
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -32,13 +33,17 @@ class ServletHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         val request = args?.get(0) as HttpServletRequest
         val uri =  request.requestURI.toString()
-        val remoteIp = getOrininalIp(request)
-        val remoteAppName = getRemoteAppName(request)
+        val remoteIp = request?.let { getOrininalIp(it) }
+        val remoteAppName = request?.let { getRemoteAppName(it) }
         //获取上一个span的spanId,这个Id是本次span的parentId
-        request.getHeader(HEADER_TRACE_ID) ?: getTraceId().also {
-            addHeader(request, HEADER_TRACE_ID,it)
-            addHeader(request, HEADER_REMOTE_IP, getHostName())
-            addHeader(request, HEADER_REMOTE_APP, getAppName())
+        request?.let { req ->
+            req.getHeader(HEADER_TRACE_ID)?.apply {
+                setTraceId(this)
+            } ?: getTraceId().also {
+                addHeader(req, HEADER_TRACE_ID, it)
+                addHeader(req, HEADER_REMOTE_IP, getHostName())
+                addHeader(req, HEADER_REMOTE_APP, getAppName())
+            }
         }
 
         return createEnterSpan(getCurrentSpan()).apply {
@@ -73,8 +78,18 @@ fun addHeader(request: HttpServletRequest?, name: String, value: String) = reque
     putHeader(name,value)
 } }
 
+fun getOriginalIp(exchange: ServerWebExchange) : String {
+    exchange.request.headers.getFirst(HEADER_REMOTE_IP)?.run { return this }
+    var ip = exchange.request.headers.getFirst("X-Forwarded-For")
+    if (null != ip && !"unknown".equals(ip,ignoreCase = true)) {
+        return if (ip.contains(",")) ip.split(",").first() else ip
+    }
+    ip =  exchange.request.headers.getFirst("X-Real-IP")
+    if (null != ip && "unkown".equals(ip,true)) return ip
+    return exchange.request.remoteAddress.address.hostAddress
+}
 fun getOrininalIp(request: HttpServletRequest) : String {
-    request.getHeader("t-remote-ip")?.run { return this }
+    request.getHeader(HEADER_REMOTE_IP)?.run { return this }
     var ip = request.getHeader("X-Forwarded-For")
     if (!(null == ip || "unknown".equals(ip,true))) {
         //多次反向代理后有多个IP值，第一个是真实IP
@@ -90,5 +105,6 @@ internal var env : Environment? = null
 
 fun getAppName() : String  = env?.getProperty("spring.application.name")?.also { logger.info("获取到的appName：$it") }?: System.getProperty("application.name","")
 
-fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP)
+fun getRemoteAppName(exchange: ServerWebExchange) : String =  exchange.request.headers.getFirst(HEADER_REMOTE_APP) ?: ""
+fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP) ?: ""
 

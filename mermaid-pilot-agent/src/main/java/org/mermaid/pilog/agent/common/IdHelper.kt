@@ -6,6 +6,8 @@ import java.net.NetworkInterface
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.concurrent.getOrSet
 
@@ -19,6 +21,7 @@ import kotlin.concurrent.getOrSet
  * @version 1.0
  */
 private val seq = ThreadLocal<AtomicLong>().apply { set(AtomicLong(0)) }
+private var spanIdMaxValue = ThreadLocal<ConcurrentHashMap<String,AtomicInteger>>()
 
 private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 
@@ -40,6 +43,11 @@ private fun getProcessId() = (ManagementFactory.getRuntimeMXBean().name.split("@
  */
 fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getMac()}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
 
-fun generateSpanId(rpcId: String?) = (rpcId?.let { rpcId.toInt().plus(1).toString() }) ?: "0"
+/**
+ * 生成spanId
+ * @param parentId 上一级spanId
+ * @return 当前Span的Id
+ */
+fun generateSpanId(parentId: String) : String = spanIdMaxValue.getOrSet { ConcurrentHashMap<String,AtomicInteger>().apply { put(parentId,AtomicInteger(0)) } }?.let { it[parentId]?.getAndIncrement().toString() }
 
 private fun hexByte(b:Byte) = "0000${Integer.toHexString(b.toInt())}".run { substring(length -2) }

@@ -10,7 +10,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.collections.HashMap
 import kotlin.concurrent.getOrSet
 
 /**
@@ -28,7 +27,6 @@ class Span {
     var traceId : String
     var spanId: String = ""
     var parentId:String = ROOT_SPAN_ID
-    var seq : Int = 0
     var startTime: LocalDateTime = LocalDateTime.now()
     var endTime: LocalDateTime? = null
     var parameterInfo: MutableMap<String,Any?> = mutableMapOf()
@@ -48,7 +46,7 @@ class Span {
     }
 
     override fun toString(): String  = """
-        {"traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","type":"$type","seq":"$seq",
+        {"traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","type":"$type",
         "startTime":"$startTime","endTime":"$endTime","className":"$className","methodName":"$methodName",
         "originalIp":"$originIp","originalApp":"$originAppName","costTime":",$costTime,",
         "requestUri":"$requestUri","requestMethod":"$requestMethod","appName":"$appName","hostName":"$hostName",
@@ -56,42 +54,39 @@ class Span {
 }
 
 val localSpan = ThreadLocal<Stack<Span>>()
-fun getHostName() = Inet4Address.getLocalHost().hostAddress
+
+/**
+ * 获取当前服务的IP地址
+ */
+fun getHostName(): String = Inet4Address.getLocalHost().hostAddress
 const val ROOT_SPAN_ID = "0"
-fun createEnterSpan(rpcId: String?) : Span  = Span(getTraceId()).apply {
-    spanId = generateSpanId(rpcId)
-    startTime = LocalDateTime.now()
-    val stack = localSpan.get()
-    if (stack.isNullOrEmpty()) {
-        localSpan.set(Stack())
-    }
-    localSpan.get().push(this)
-}
 val lock = ReentrantLock()
-fun createEnterSpan(rpcId: String?, traceId: String?) : Span  = lock.lock().let {
-    Span(getTraceId()).apply {
-        this.spanId = generateSpanId(rpcId)
-        rpcId?.let { parentId = it }
-        startTime = LocalDateTime.now()
-        localSpan.getOrSet { Stack() }.push(this)
-    }.apply { lock.unlock() }
+
+/**
+ * 创建span信息
+ */
+fun createEnterSpan(currentSpan: Span?) : Span {
+    lock.lock()
+    return try {
+        Span(getTraceId()).apply {
+            this.spanId = generateSpanId((currentSpan?.spanId?: ROOT_SPAN_ID).also { this.parentId = it })
+            this.startTime = LocalDateTime.now()
+            localSpan.getOrSet { Stack() }.push(this)
+        }
+    } finally {
+        lock.unlock()
+    }
 }
 
-fun createEnterSpan(currentSpan: Span?) = lock.lock().let {
-    Span(getTraceId()).apply {
-        this.spanId = generateSpanId(currentSpan?.spanId?.also { this.parentId = it })
-        this.startTime = LocalDateTime.now()
-        currentSpan?.let { this.seq += (it.seq?: 1) }
-        localSpan.getOrSet { Stack() }.push(this)
-    }.also {
-        lock.unlock() }
-}
-fun getCurrentSpan() : Span? = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
+/**
+ * 获取栈顶的span信息
+ */
+fun getCurrentSpan() : Span?  = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
 fun getCurrentSpanAndRemove(throwable: Throwable?) = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
     this.throwable = throwable
-    logger.info("取出span：${toString()}")
+    logger.apply { this.level = java.util.logging.Level.OFF }.info("取出span：${toString()}")
     produce(this)
 }

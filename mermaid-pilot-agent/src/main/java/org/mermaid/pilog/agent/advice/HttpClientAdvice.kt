@@ -18,7 +18,11 @@ class HttpClientAdvice {
         @JvmStatic
         @Advice.OnMethodEnter
         fun enter(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>) {
-            getHandler(HttpClientHandler::class.java).before(className,method,args)
+            try {
+                getHandler(HttpClientHandler::class.java).before(className,method,args)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         @JvmStatic

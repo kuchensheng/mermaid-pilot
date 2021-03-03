@@ -2,8 +2,10 @@ package org.mermaid.pilog.agent
 
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
+import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
+import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.utility.JavaModule
@@ -11,6 +13,7 @@ import org.mermaid.pilog.agent.common.blockingQueue
 import org.mermaid.pilog.agent.common.consume
 import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
+import org.mermaid.pilog.agent.intercept.HttpClientIntercepter
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
@@ -37,7 +40,20 @@ class PilotAgent {
             initialize()
             var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
                     .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
-            pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
+            pluginGroup.forEach { p ->
+                p.buildInterceptPoint().forEach {
+                    agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform {
+                        builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher())))
+//                    .method(ElementMatchers.isMethod<MethodDescription>()
+//                            .and(ElementMatchers.not(ElementMatchers.isConstructor()))).intercept(MethodDelegation.to(HttpClientIntercepter))
+                    }
+                }
+            }
+            agentBuilder = agentBuilder.type(intercepteMater()).transform { builder, typeDescription, classLoader, module -> builder.method(ElementMatchers.isMethod<MethodDescription>()
+                    .and(ElementMatchers.isPublic<MethodDescription>())
+                    .and(ElementMatchers.not(ElementMatchers.isAbstract())))
+                    .intercept(MethodDelegation.to(HttpClientIntercepter::class.java))
+            }
             agentBuilder.installOn(inst)
 
         }
@@ -57,6 +73,7 @@ class PilotAgent {
 
         private fun notMatcher(): ElementMatcher.Junction<TypeDescription>  = ElementMatchers.not(ElementMatchers.nameContains("intellij"))
 
+        private fun intercepteMater() : ElementMatcher.Junction<TypeDescription> = ElementMatchers.named<TypeDescription>("cn.hutool.http.HttpRequest")
         private fun builderListener(): AgentBuilder.Listener? = object : AgentBuilder.Listener {
             override fun onDiscovery(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
                 //TODO("Not yet implemented")
