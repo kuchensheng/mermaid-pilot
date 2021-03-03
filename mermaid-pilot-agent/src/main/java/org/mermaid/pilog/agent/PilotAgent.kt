@@ -33,54 +33,56 @@ class PilotAgent {
     companion object {
         @JvmStatic
         fun premain(args: String?, inst: Instrumentation) {
-            println("基于javaagent链路跟踪PIVOT信息收集器")
-            println("=================================================================")
-            loadPlugin()
-            loadHandler()
             initialize()
-            var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
-                    .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
-            pluginGroup.forEach { p ->
-                p.buildInterceptPoint().forEach {
-                    agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform {
-                        builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher())))
-//                    .method(ElementMatchers.isMethod<MethodDescription>()
-//                            .and(ElementMatchers.not(ElementMatchers.isConstructor()))).intercept(MethodDelegation.to(HttpClientIntercepter))
-                    }
-                }
-            }
-            agentBuilder = agentBuilder.type(intercepteMater()).transform { builder, typeDescription, classLoader, module -> builder.method(ElementMatchers.isMethod<MethodDescription>()
-                    .and(ElementMatchers.isPublic<MethodDescription>())
-                    .and(ElementMatchers.not(ElementMatchers.isAbstract())))
-                    .intercept(MethodDelegation.to(HttpClientIntercepter::class.java))
-            }
-            agentBuilder.installOn(inst)
-
+            addPlugin().run { addIntercepter(this) }.run { installOn(inst) }
         }
 
         @JvmStatic
         fun agentmain(args: String?, inst: Instrumentation) {
-            println("基于javaagent链路跟踪PIVOT信息收集器")
-            println("=================================================================")
-            loadPlugin()
-            loadHandler()
             initialize()
+            addPlugin().run { addIntercepter(this) }.run { installOn(inst) }
+        }
+
+        /**
+         * 设置全局不匹配的类规则
+         */
+        private fun notMatcher(): ElementMatcher.Junction<TypeDescription>  = ElementMatchers.not(ElementMatchers.nameContains("intellij"))
+
+        /**
+         * 设置全量过滤器匹配规则
+         */
+        private fun intercepteMatcher() : ElementMatcher.Junction<TypeDescription> = ElementMatchers.named("cn.hutool.http.HttpRequest")//ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named("org.springframework.cloud.gateway.filter.GlobalFilter"))
+//                .or(ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named("org.springframework.cloud.gateway.filter.GlobalFilter"))
+//                        .and(ElementMatchers.not(ElementMatchers.isInterface()))
+//                        .and(ElementMatchers.not(ElementMatchers.isAbstract())))
+
+        /**
+         * 添加插件
+         */
+        private fun addPlugin() : AgentBuilder {
             var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
                     .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
             pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
-            agentBuilder.installOn(inst)
+            return agentBuilder
         }
 
-        private fun notMatcher(): ElementMatcher.Junction<TypeDescription>  = ElementMatchers.not(ElementMatchers.nameContains("intellij"))
+        /**
+         * 添加拦截器
+         */
+        private fun addIntercepter(agentBuilder: AgentBuilder) : AgentBuilder = agentBuilder.type(intercepteMatcher()).transform { builder, _, _, _ -> builder.method(ElementMatchers.isMethod<MethodDescription>().and(ElementMatchers.named("execute")))
+                    .intercept(MethodDelegation.to(HttpClientIntercepter::class.java)).also { println("添加拦截器") }
+        }
 
-        private fun intercepteMater() : ElementMatcher.Junction<TypeDescription> = ElementMatchers.named<TypeDescription>("cn.hutool.http.HttpRequest")
+        /**
+         * 构建监听器
+         */
         private fun builderListener(): AgentBuilder.Listener? = object : AgentBuilder.Listener {
             override fun onDiscovery(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
                 //TODO("Not yet implemented")
             }
 
             override fun onTransformation(typeDescription: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: DynamicType?) {
-                org.mermaid.pilog.agent.plugin.factory.logger.info("onTransformation:$typeDescription,dynamicType:$p4")
+                println("onTransformation:$typeDescription,dynamicType:$p4")
             }
 
             override fun onIgnored(p0: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
@@ -88,7 +90,7 @@ class PilotAgent {
             }
 
             override fun onError(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: Throwable?) {
-                org.mermaid.pilog.agent.plugin.factory.logger.warning("方法执行异常,class is $p0,classLoader is $p1,Throwable:\n $p4")
+                println("方法执行异常,class is $p0,classLoader is $p1,Throwable:\n $p4")
             }
 
             override fun onComplete(p0: String?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
@@ -96,7 +98,14 @@ class PilotAgent {
             }
         }
 
+        /**
+         * 初始化信息
+         */
         private fun initialize() {
+            println("基于javaagent链路跟踪PIVOT信息收集器")
+            println("=================================================================")
+            loadPlugin()
+            loadHandler()
             ThreadPoolExecutor(1,4,0,TimeUnit.SECONDS,LinkedBlockingQueue()).execute { while (true) if (blockingQueue.isEmpty()) Thread.sleep(100) else consume()?.run { report(this) } }
         }
     }

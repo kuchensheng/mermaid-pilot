@@ -7,9 +7,7 @@ import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.redis.RedisPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
-import org.mermaid.pilog.agent.plugin.springcloud.gateway.FilterPlugin
 import org.mermaid.pilog.agent.plugin.springweb.SpringWebPlugin
-import org.mermaid.pilog.agent.plugin.thread.ThreadPlugin
 
 /**
  * description: 插件名枚举
@@ -29,7 +27,6 @@ enum class PluginName {
 //    THREADPLUGIN("thread",ThreadPlugin),
     SPRINGWEB("springweb",SpringWebPlugin),
     JDBC("jdbc",JdbcPlugin),
-//    GATEWAYFILTER("gateway.filter",FilterPlugin),
     REDIS("redis",RedisPlugin),
 //    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
     ;
