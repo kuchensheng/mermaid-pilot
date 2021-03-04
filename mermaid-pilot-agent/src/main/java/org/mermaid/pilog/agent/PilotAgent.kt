@@ -2,18 +2,20 @@ package org.mermaid.pilog.agent
 
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
-import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
+import net.bytebuddy.implementation.MethodCall
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
+import net.bytebuddy.matcher.ElementMatchers.named
 import net.bytebuddy.utility.JavaModule
 import org.mermaid.pilog.agent.common.blockingQueue
 import org.mermaid.pilog.agent.common.consume
 import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
 import org.mermaid.pilog.agent.intercept.HttpClientIntercepter
+import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
@@ -34,7 +36,7 @@ class PilotAgent {
         @JvmStatic
         fun premain(args: String?, inst: Instrumentation) {
             initialize()
-            addPlugin().run { addIntercepter(this) }.run { installOn(inst) }
+            addPlugin().run { installOn(inst) }
         }
 
         @JvmStatic
@@ -69,7 +71,7 @@ class PilotAgent {
         /**
          * 添加拦截器
          */
-        private fun addIntercepter(agentBuilder: AgentBuilder) : AgentBuilder = agentBuilder.type(intercepteMatcher()).transform { builder, _, _, _ -> builder.method(ElementMatchers.isMethod<MethodDescription>().and(ElementMatchers.named("execute")))
+        private fun addIntercepter(agentBuilder: AgentBuilder) : AgentBuilder = agentBuilder.type(intercepteMatcher()).transform { builder, _, _, _ -> builder.method(named("execute"))
                     .intercept(MethodDelegation.to(HttpClientIntercepter::class.java)).also { println("添加拦截器") }
         }
 
