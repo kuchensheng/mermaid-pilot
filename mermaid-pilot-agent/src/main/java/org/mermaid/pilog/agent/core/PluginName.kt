@@ -24,7 +24,7 @@ enum class PluginName {
     HTTP4PLUGIN("http4", HttpClient4Plugin),
     PROCESS("process",ProcessPlugin),
     OKHTTP3PLUGIN("okhttp3", OkHttpClient3xPlugin),
-//    HUTOOLPLUGIN("hutool",HutoolClientPlugin),
+    HUTOOLPLUGIN("hutool",HutoolClientPlugin),
 //    THREADPLUGIN("thread",ThreadPlugin),
     SPRINGWEB("springweb",SpringWebPlugin),
     JDBC("jdbc",JdbcPlugin),

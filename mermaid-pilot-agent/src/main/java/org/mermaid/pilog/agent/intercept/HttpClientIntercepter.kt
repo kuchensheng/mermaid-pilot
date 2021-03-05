@@ -3,6 +3,10 @@ package org.mermaid.pilog.agent.intercept
 import cn.hutool.http.HttpRequest
 import cn.hutool.http.HttpResponse
 import cn.hutool.http.HttpUtil
+import com.sun.org.apache.xpath.internal.operations.Bool
+import net.bytebuddy.ByteBuddy
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy
+import net.bytebuddy.implementation.MethodCall
 import net.bytebuddy.implementation.bind.annotation.*
 import org.mermaid.pilog.agent.common.getTraceId
 import org.mermaid.pilog.agent.handler.HEADER_REMOTE_APP
@@ -12,6 +16,7 @@ import org.mermaid.pilog.agent.handler.getAppName
 import org.mermaid.pilog.agent.model.getHostName
 import java.lang.Exception
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import kotlin.jvm.Throws
 
 /**
@@ -29,18 +34,11 @@ object HttpClientIntercepter {
     @Throws(Exception::class)
     fun onMethodExecution(@This instance : Any, @Origin method: Method) : Any {
         instance as HttpRequest
-        instance.header(HEADER_TRACE_ID, getTraceId()).header(HEADER_REMOTE_IP, getHostName()).header(HEADER_REMOTE_APP, getAppName())
-        println("执行类: ${instance::class.java.name}, execute方法: $method")
-        val httpRequest = getHttpRequest(instance).also {
-            println("$it")
-        }
-        var m = HttpRequest::class.java.getDeclaredMethod("execute",Boolean::class.java)
-        return ("executeAsync" == method.name).let { m.invoke(httpRequest,it) }
-    }
-
-    private fun getHttpRequest(instance: HttpRequest) = HttpUtil.createRequest(instance.method,instance.url).apply {
-        instance.headers()?.forEach { (t, u) -> header(t,u.first()) }
-        instance.toString().let { it.substringAfter("Request Body:").replace("\r\n","").trim().let { b -> this.body(b) } }
+        val my = instance.header(HEADER_TRACE_ID, getTraceId()).header(HEADER_REMOTE_IP, getHostName()).header(HEADER_REMOTE_APP, getAppName())
+        println("执行类: ${my::class.java.name}, execute方法: $method")
+        println("$my")
+        val m = HttpRequest::class.java.getDeclaredMethod("execute",Boolean::class.java)
+        return ("executeAsync" == method.name).let { m.invoke(my,it) }
     }
 
 }

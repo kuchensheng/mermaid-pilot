@@ -31,8 +31,7 @@ object HutoolClientAdvice {
     fun onMethodExecution(@Advice.This(optional = true) instance : Any,
                           @Advice.Origin("#m") method: Method){
         createEnterSpan(getCurrentSpan()).apply {
-            var myInstance : HttpRequest = instance as HttpRequest
-
+            instance as HttpRequest
             this.className = instance::class.java.name
             this.requestMethod = instance.method.name
             this.requestUri = URL(instance.url).toURI().path

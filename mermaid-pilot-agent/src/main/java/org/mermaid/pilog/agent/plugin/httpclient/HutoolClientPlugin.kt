@@ -29,7 +29,7 @@ object HutoolClientPlugin : IPlugin{
                 .and(isPublic())
                 .and(not(isConstructor()))
                 .and(not(isAbstract()))
-                .and(named("execute"))
+                .and(named<MethodDescription>("execute").and(takesArgument(0,Boolean::class.java)))
     })
 
     override fun interceptorAdviceClass(): Class<*>  = HutoolClientAdvice::class.java
