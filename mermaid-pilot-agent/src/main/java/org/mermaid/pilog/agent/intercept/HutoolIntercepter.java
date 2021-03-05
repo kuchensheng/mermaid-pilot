@@ -20,8 +20,8 @@ import java.util.concurrent.Callable;
 public class HutoolIntercepter {
 
     @RuntimeType
-    public static Object intercept(@Origin(privileged = true) Method method, @This(optional = true) Object instance, @SuperCall Callable<?> callable) throws Exception {
-        System.out.println("执行方法了……methodName is "+ method.getName());
-        return callable.call();
+    public static Object intercept(@RuntimeType() Object value) throws Exception {
+        System.out.println("执行方法了……methodName is "+ value);
+        return value;
     }
 }

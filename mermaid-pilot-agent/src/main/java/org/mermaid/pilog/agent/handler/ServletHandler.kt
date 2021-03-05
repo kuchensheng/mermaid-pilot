@@ -22,22 +22,29 @@ import javax.servlet.http.HttpServletRequestWrapper
  * @date 2021/2/1911:05
  * @version 1.0
  */
-const val HEADER_TRACE_ID = "t-header-trace-id"
+const val HEADER_TRACE_ID = "t-headTraceId"
 const val HEADER_SPAN_ID = "t-header-span-id"
-const val HEADER_REMOTE_IP = "t-remote-ip"
-const val HEADER_REMOTE_APP = "t-remote-app"
+const val HEADER_REMOTE_IP = "t-headRemoteIp"
+const val HEADER_REMOTE_APP = "t-headRemoteApp"
 val parameterNames = hashSetOf("sec-fetch-mode","sec-fetch-site","accept-language","sec-fetch-user","cache-control","user-agent","sec-fetch-dest","host","accept-encoding")
 class ServletHandler : IHandler {
     private val logger = LoggerFactory.getLogger(ServletHandler::class.java)
 
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
+        println("执行类：ServletHandler")
+        args?.forEach {
+            println("参数信息： $it")
+        }
         val request = args?.get(0) as HttpServletRequest
+        println("执行request：$request")
         val uri =  request.requestURI.toString()
         val remoteIp = request?.let { getOrininalIp(it) }
         val remoteAppName = request?.let { getRemoteAppName(it) }
         //获取上一个span的spanId,这个Id是本次span的parentId
+
         request?.let { req ->
             req.getHeader(HEADER_TRACE_ID)?.apply {
+                println("获取到的请求头中带有的traceId：$this")
                 setTraceId(this)
             } ?: getTraceId().also {
                 addHeader(req, HEADER_TRACE_ID, it)

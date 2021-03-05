@@ -48,8 +48,9 @@ fun report(span: Span) {
 
 private fun getReport(reportName: String?) : IReporter = getReporter(reportName)?: object : IReporter {
     override fun report(span: Span): Int?  = println(span.toString()).let {
-        println("队列剩余量：${blockingQueue.size}")
-        0 }
+        println("队列剩余量：${if (blockingQueue.isNullOrEmpty()) 0 else blockingQueue.size}")
+        0
+    }
 
     override fun report(list: List<Span>): Int?  = println(JSONObject.fromObject(list)).let { 0 }
 }

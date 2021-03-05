@@ -2,6 +2,8 @@ package org.mermaid.pilog.agent.advice
 
 import cn.hutool.http.HttpRequest
 import net.bytebuddy.asm.Advice
+import net.bytebuddy.implementation.bind.annotation.Super
+import org.mermaid.pilog.agent.common.getParameterInfo
 import org.mermaid.pilog.agent.common.getTraceId
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.handler.HEADER_REMOTE_APP
@@ -13,6 +15,7 @@ import org.mermaid.pilog.agent.model.getCurrentSpan
 import org.mermaid.pilog.agent.model.getCurrentSpanAndRemove
 import org.mermaid.pilog.agent.model.getHostName
 import java.lang.reflect.Method
+import java.net.URL
 
 /**
  * description: TODO
@@ -25,20 +28,22 @@ import java.lang.reflect.Method
 object HutoolClientAdvice {
     @Advice.OnMethodEnter
     @JvmStatic
-    fun onMethodExecution(@Advice.This(optional = true) instance : Any?,
+    fun onMethodExecution(@Advice.This(optional = true) instance : Any,
                           @Advice.Origin("#m") method: Method){
         createEnterSpan(getCurrentSpan()).apply {
-            this.className = instance?.let { it::class.java.name }
+            var myInstance : HttpRequest = instance as HttpRequest
+
+            this.className = instance::class.java.name
+            this.requestMethod = instance.method.name
+            this.requestUri = URL(instance.url).toURI().path
+            this.parameterInfo = getParameterInfo(instance)
+            instance.header(HEADER_TRACE_ID, getTraceId())
+                    .header(HEADER_REMOTE_IP, getHostName())
+                    .header(HEADER_REMOTE_APP, getAppName())
+            println("设置请求头")
             this.methodName = method.name
             this.type = HandlerType.HTTPCLIENT.name
-        }
 
-        instance?.run {
-            if (instance is HttpRequest) {
-                instance.header(HEADER_TRACE_ID, getTraceId())
-                        .header(HEADER_REMOTE_IP, getHostName())
-                        .header(HEADER_REMOTE_APP, getAppName())
-            }
         }
 
     }

@@ -16,25 +16,22 @@ import java.lang.reflect.Method
  * @date 2021/2/1910:41
  * @version 1.0
  */
-class ServletAdvice {
-    companion object {
-        @Advice.OnMethodEnter
-        @JvmStatic
-        fun enter(@Advice.Origin("#t") className: String,
-                  @Advice.Origin method: Method,
-                  @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
-                  @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
-            logger.info("执行servlet通知方法")
-            getHandler(ServletHandler::class.java).before(className,method, arrayOf(req,resp))
-        }
+object ServletAdvice {
+    @Advice.OnMethodEnter
+    @JvmStatic
+    fun enter(@Advice.Origin("#t") className: String,
+              @Advice.Origin method: Method,
+              @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) req: Any?,
+              @Advice.Argument(value = 1, readOnly = false, typing = Assigner.Typing.DYNAMIC) resp : Any?) {
+        getHandler(ServletHandler::class.java).before(className,method, arrayOf(req,resp))
+    }
 
-        @Advice.OnMethodExit(onThrowable = Exception::class)
-        @JvmStatic
-        fun exit(@Advice.Origin("#t") className: String,
-                 @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?,
-                 @Advice.Thrown throwable: Throwable?) {
-            getHandler(ServletHandler::class.java).after(className,method,args,null,throwable)
-        }
+    @Advice.OnMethodExit(onThrowable = Exception::class)
+    @JvmStatic
+    fun exit(@Advice.Origin("#t") className: String,
+             @Advice.Origin method: Method,
+             @Advice.AllArguments args: Array<*>?,
+             @Advice.Thrown throwable: Throwable?) {
+        getHandler(ServletHandler::class.java).after(className,method,args,null,throwable)
     }
 }

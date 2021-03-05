@@ -13,22 +13,20 @@ import java.lang.reflect.Method
  * @date 2021/2/2216:57
  * @version 1.0
  */
-class HttpClientAdvice {
-    companion object {
-        @JvmStatic
-        @Advice.OnMethodEnter
-        fun enter(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>) {
-            try {
-                getHandler(HttpClientHandler::class.java).before(className,method,args)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+object HttpClientAdvice {
+    @JvmStatic
+    @Advice.OnMethodEnter
+    fun enter(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>) {
+        try {
+            getHandler(HttpClientHandler::class.java).before(className,method,args)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+    }
 
-        @JvmStatic
-        @Advice.OnMethodExit(onThrowable = Throwable::class)
-        fun exit(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>, @Advice.Thrown throwable: Throwable?) {
-            getHandler(HttpClientHandler::class.java).after(className,method,args,null,throwable)
-        }
+    @JvmStatic
+    @Advice.OnMethodExit(onThrowable = Throwable::class)
+    fun exit(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>, @Advice.Thrown throwable: Throwable?) {
+        getHandler(HttpClientHandler::class.java).after(className,method,args,null,throwable)
     }
 }

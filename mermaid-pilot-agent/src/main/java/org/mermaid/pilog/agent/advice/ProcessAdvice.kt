@@ -13,23 +13,21 @@ import java.lang.reflect.Method
  * @date 2021/2/2218:08
  * @version 1.0
  */
-class ProcessAdvice {
-    companion object {
-        @Advice.OnMethodEnter
-        @JvmStatic
-        fun enter(@Advice.Origin("#t") className: String,
-                  @Advice.Origin method: Method,
-                  @Advice.AllArguments args: Array<*>?) {
-            getHandler(ProcessHandler::class.java).before(className,method, args)
-        }
+object ProcessAdvice {
+    @Advice.OnMethodEnter
+    @JvmStatic
+    fun enter(@Advice.Origin("#t") className: String,
+              @Advice.Origin method: Method,
+              @Advice.AllArguments args: Array<*>?) {
+        getHandler(ProcessHandler::class.java).before(className,method, args)
+    }
 
-        @Advice.OnMethodExit(onThrowable = Throwable::class)
-        @JvmStatic
-        fun exit(@Advice.Origin("#t") className: String,
-                 @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?,
-                 @Advice.Thrown throwable: Throwable?) {
-            getHandler(ProcessHandler::class.java).after(className,method,args,null,throwable)
-        }
+    @Advice.OnMethodExit(onThrowable = Throwable::class)
+    @JvmStatic
+    fun exit(@Advice.Origin("#t") className: String,
+             @Advice.Origin method: Method,
+             @Advice.AllArguments args: Array<*>?,
+             @Advice.Thrown throwable: Throwable?) {
+        getHandler(ProcessHandler::class.java).after(className,method,args,null,throwable)
     }
 }

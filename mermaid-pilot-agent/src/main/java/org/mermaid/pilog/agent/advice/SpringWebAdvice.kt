@@ -13,21 +13,20 @@ import java.lang.reflect.Method
  * @date 2021/2/2010:36
  * @version 1.0
  */
-class SpringWebAdvice {
-    companion object {
-        @Advice.OnMethodEnter
-        @JvmStatic
-        fun enter(@Advice.Origin("#t") className: String,
-                  @Advice.Origin method: Method) {
-            getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
-        }
+object SpringWebAdvice {
+    @Advice.OnMethodEnter
+    @JvmStatic
+    fun enter(@Advice.Origin("#t") className: String,
+              @Advice.Origin method: Method) {
+        println("执行spring web advice ")
+        getHandler(SpringWebHandler::class.java).before(className,method, arrayOf(""))
+    }
 
-        @Advice.OnMethodExit(onThrowable = Throwable::class)
-        @JvmStatic
-        fun exit(@Advice.Origin("#t") className: String,
-                 @Advice.Origin method: Method,
-                 @Advice.AllArguments args: Array<*>?, @Advice.Thrown throwable: Throwable?) {
-            getHandler(SpringWebHandler::class.java).after(className,method,args,null,throwable)
-        }
+    @Advice.OnMethodExit(onThrowable = Throwable::class)
+    @JvmStatic
+    fun exit(@Advice.Origin("#t") className: String,
+             @Advice.Origin method: Method,
+             @Advice.AllArguments args: Array<*>?, @Advice.Thrown throwable: Throwable?) {
+        getHandler(SpringWebHandler::class.java).after(className,method,args,null,throwable)
     }
 }

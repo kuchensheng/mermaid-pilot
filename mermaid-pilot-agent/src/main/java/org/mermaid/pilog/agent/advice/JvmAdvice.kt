@@ -12,13 +12,11 @@ import org.mermaid.pilog.agent.plugin.jvm.printMemoryInfo
  * @date 2021/2/1817:49
  * @version 1.0
  */
-class JvmAdvice {
-    companion object {
-        @JvmStatic
-        @Advice.OnMethodExit
-        fun exit() {
-            printMemoryInfo()
-            printGCInfo()
-        }
+object JvmAdvice {
+    @JvmStatic
+    @Advice.OnMethodExit
+    fun exit() {
+        printMemoryInfo()
+        printGCInfo()
     }
 }

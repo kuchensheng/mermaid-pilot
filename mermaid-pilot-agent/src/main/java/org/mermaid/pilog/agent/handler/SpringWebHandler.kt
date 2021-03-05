@@ -24,10 +24,16 @@ class SpringWebHandler : IHandler {
         }
     }.run { appName }
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
-        val request = RequestContextHolder.getRequestAttributes()?.let { (it as ServletRequestAttributes).request }
-        var traceId = (getCurrentSpan()?.traceId?: request?.getHeader(HEADER_TRACE_ID))?: getTraceId().also { addHeader(request, HEADER_TRACE_ID,it) }
-        var span = getCurrentSpan()?: Span(traceId)
-        return createEnterSpan(span).apply {
+        val request = RequestContextHolder.getRequestAttributes().let { (it as ServletRequestAttributes).request }
+        request.headerNames.iterator().forEach {
+            println("SpringWebHandler 请求头：$it,值：${request.getHeader(it)}")
+        }
+        request.getHeader(HEADER_TRACE_ID)?.run {
+            setTraceId(this)
+            addHeader(request, HEADER_TRACE_ID,this)
+        }.also { println("从请求头中获取traceId=$it") }
+
+        return createEnterSpan(getCurrentSpan()).apply {
             this.className = className
             this.methodName = method.name
             this.parameterInfo = collectParameters(method,args)
