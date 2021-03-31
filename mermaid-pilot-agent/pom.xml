@@ -79,6 +79,10 @@
       <artifactId>hutool-all</artifactId>
       <version>5.5.6</version>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-coroutines-core</artifactId>
+    </dependency>
   </dependencies>
   <build>
 

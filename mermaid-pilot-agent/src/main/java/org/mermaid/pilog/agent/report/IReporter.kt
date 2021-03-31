@@ -1,5 +1,6 @@
 package org.mermaid.pilog.agent.report
 
+import org.mermaid.pilog.agent.common.ReportType
 import org.mermaid.pilog.agent.model.Span
 
 /**
@@ -17,5 +18,3 @@ interface IReporter {
     fun report(list: List<Span>) : Int?
 
 }
-
-fun getReporter(className: String?) : IReporter? = null

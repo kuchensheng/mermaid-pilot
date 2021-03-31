@@ -1,5 +1,9 @@
 package org.mermaid.pilog.agent
 
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
 import net.bytebuddy.description.method.MethodDescription
@@ -10,12 +14,13 @@ import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.matcher.ElementMatchers.*
 import net.bytebuddy.utility.JavaModule
-import org.mermaid.pilog.agent.common.blockingQueue
 import org.mermaid.pilog.agent.common.consume
+import org.mermaid.pilog.agent.common.readCommandLineArgs
 import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
 import org.mermaid.pilog.agent.intercept.HttpClientIntercepter
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
+import org.mermaid.pilog.agent.plugin.factory.logger
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
 import java.util.concurrent.LinkedBlockingQueue
@@ -35,6 +40,7 @@ class PilotAgent {
         @JvmStatic
         fun premain(args: String?, inst: Instrumentation) {
             initialize()
+            readCommandLineArgs(args?.split(";")?: null)
             addPlugin().also { addIntercepter(inst) }.run { installOn(inst) }
         }
 
@@ -42,6 +48,7 @@ class PilotAgent {
         @JvmStatic
         fun agentmain(args: String?, inst: Instrumentation) {
             initialize()
+            readCommandLineArgs(args?.split(";")?: null)
             addPlugin().also { addIntercepter(inst) }.run { installOn(inst) }
         }
 
@@ -121,7 +128,12 @@ class PilotAgent {
             println("=================================================================")
             loadPlugin()
             loadHandler()
-            ThreadPoolExecutor(1,4,0,TimeUnit.SECONDS,LinkedBlockingQueue()).execute { while (true) if (blockingQueue.isEmpty()) Thread.sleep(100) else consume()?.run { report(this) } }
+            repeat(1) {
+                GlobalScope.launch(CoroutineName("$it")) {
+                    logger.info("启动协程,协程Id:${CoroutineName.Key}")
+                    while (true) { consume().run { if (this.isNullOrEmpty()) delay(1000) else report(this) } }
+                }
+            }
         }
     }
 }

@@ -1,15 +1,13 @@
 package org.mermaid.pilog.agent.common
 
-import net.sf.json.JSONObject
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
-import org.mermaid.pilog.agent.report.IReporter
-import org.mermaid.pilog.agent.report.getReporter
-import java.nio.charset.Charset
+import org.mermaid.pilog.agent.report.AbstractReport
+import org.mermaid.pilog.agent.report.ReportStrategy
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.max
 
 /**
  * description: span信息管理
@@ -20,37 +18,14 @@ import java.util.concurrent.locks.ReentrantLock
  * @version 1.0
  */
 val threadLocalSpan = ThreadLocal<Stack<Span>>()
-val blockingQueue = ConcurrentLinkedQueue<Span>()
+private val blockingQueue = CopyOnWriteArrayList<Span>()
 
-fun createEntrySpan(type: HandlerType?,rpcId: String?) = createSpan(type,rpcId)
 
 fun produce(span: Span) = blockingQueue.add(span)
 
-fun consume() : Span? = blockingQueue.poll()
-
-private fun createSpan(type: HandlerType?,rpcId: String?) {
-    var stack = threadLocalSpan.get()
-    if (stack.isNullOrEmpty()) threadLocalSpan.set(Stack<Span>().apply { stack = this })
-    if (stack.isEmpty()){}
+fun consume() : List<Span> {
+    return blockingQueue.also { it.clear() }
 }
 
-private val lock = ReentrantLock()
-fun report(span: Span) {
-    getReport("").run {
-        lock.lock()
-        try {
-            report(span)
-        } finally {
-            lock.unlock()
-        }
-    }
-}
-
-private fun getReport(reportName: String?) : IReporter = getReporter(reportName)?: object : IReporter {
-    override fun report(span: Span): Int?  = println(span.toString()).let {
-        println("队列剩余量：${if (blockingQueue.isNullOrEmpty()) 0 else blockingQueue.size}")
-        0
-    }
-
-    override fun report(list: List<Span>): Int?  = println(JSONObject.fromObject(list)).let { 0 }
-}
+fun report(spans: List<Span>) = getReport(CommandConfig.reportType).report(spans).also { println("队列剩余量:${blockingQueue.size}") }
+private fun getReport(type: ReportType) : AbstractReport = ReportStrategy().getReporter(type)

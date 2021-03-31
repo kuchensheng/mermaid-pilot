@@ -23,7 +23,7 @@ import kotlin.concurrent.getOrSet
 private val seq = ThreadLocal<AtomicLong>().apply { set(AtomicLong(0)) }
 private var spanIdMaxValue = ThreadLocal<ConcurrentHashMap<String,AtomicInteger>>()
 
-private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
 
 /**
  * 获取mac地址
@@ -41,7 +41,7 @@ private fun getProcessId() = (ManagementFactory.getRuntimeMXBean().name.split("@
  * 生成traceId
  * 生成规则：循环自增seq + 产生ID时间 + 机器MAC + 当前进程号 + 当前线程号
  */
-fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getMac()}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
+fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
 
 /**
  * 生成spanId
