@@ -19,9 +19,9 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
 
     override fun doReport(list: List<Span>): Int? {
         val lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.info("跟踪信息上报到Loki,服务地址：$it") }
-        (0 until maxOf(1,list.size.div(128))).forEach {
+        (0 until maxOf(1,list.size.div(128))).forEach { idx ->
+            logger.info("上报日志,$idx")
             var requestBodyStr = JSONArray().apply {
-
                 list.forEach { span ->
                     add(JSONObject().apply {
                         //tags
