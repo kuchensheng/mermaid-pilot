@@ -23,8 +23,13 @@ private val blockingQueue = CopyOnWriteArrayList<Span>()
 
 fun produce(span: Span) = blockingQueue.add(span)
 
-fun consume() : List<Span> {
-    return blockingQueue.also { it.clear() }
+fun consume() : MutableList<Span> {
+    return mutableListOf<Span>().apply {
+        blockingQueue.forEach {
+            add(it)
+            blockingQueue.remove(it)
+        }
+    }
 }
 
 fun report(spans: List<Span>) = getReport(CommandConfig.reportType).report(spans).also { println("队列剩余量:${blockingQueue.size}") }
