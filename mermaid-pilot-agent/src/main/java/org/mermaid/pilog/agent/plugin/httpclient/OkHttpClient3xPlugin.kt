@@ -20,9 +20,13 @@ object OkHttpClient3xPlugin : IPlugin {
     override fun getName(): String = "okhttp3x"
 
     override fun buildInterceptPoint(): Array<InterceptPoint> = arrayOf(object : InterceptPoint{
-        override fun buildTypesMatcher(): ElementMatcher<TypeDescription>?  = ElementMatchers.named("okhttp3.Request")
+        override fun buildTypesMatcher(): ElementMatcher<TypeDescription>?  = ElementMatchers.nameStartsWith<TypeDescription>("okhttp3.RealCall")
 
-        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isConstructor()
+        override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
+                .and(ElementMatchers.not(ElementMatchers.isConstructor()))
+                .and(ElementMatchers.isPublic())
+                .and(ElementMatchers.named<MethodDescription>("execute")
+                        .or(ElementMatchers.named<MethodDescription>("cancel")))
     })
 
     override fun interceptorAdviceClass(): Class<*>  = HttpClientAdvice::class.java

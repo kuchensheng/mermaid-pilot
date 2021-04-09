@@ -16,10 +16,14 @@ import java.lang.reflect.Method
  */
 class HttpClientHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span  = createEnterSpan(getCurrentSpan()).apply {
+        println("执行类，className = $className")
         this.className = className
         this.methodName = method.name
-        this.requestMethod = requestMethod
         this.type = HandlerType.HTTPCLIENT.name
+        args?.firstOrNull { it is HttpRequest }.let {
+            this.requestUri = (it as HttpRequest).uri.toString()
+            this.requestMethod = it.methodValue
+        }
         this.parameterInfo = collectParameters(method,args)
     }.also { span ->
         args?.forEach {

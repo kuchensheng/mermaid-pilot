@@ -1,7 +1,6 @@
 package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.common.*
-import org.mermaid.pilog.agent.config.LocalAppConfig
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.*
 import org.mermaid.pilog.agent.plugin.factory.logger
@@ -41,19 +40,19 @@ class ServletHandler : IHandler {
         val remoteIp = request?.let { getOrininalIp(it) }
         val remoteAppName = request?.let { getRemoteAppName(it) }
         //获取上一个span的spanId,这个Id是本次span的parentId
-
-        request?.let { req ->
-            req.getHeader(HEADER_TRACE_ID)?.apply {
-                println("获取到的请求头中带有的traceId：$this")
-                setTraceId(this)
-            } ?: getTraceId().also {
-                addHeader(req, HEADER_TRACE_ID, it)
-                addHeader(req, HEADER_REMOTE_IP, getHostName())
-                addHeader(req, HEADER_REMOTE_APP, getAppName())
+        var traceId = request.getHeader(HEADER_TRACE_ID)
+        if (traceId.isNullOrBlank()) {
+            request.apply {
+                addHeader(this, HEADER_TRACE_ID, getAndSetTraceId())
+                addHeader(this, HEADER_REMOTE_IP, getHostName())
+                addHeader(this, HEADER_REMOTE_APP, getAppName())
             }
+        }else {
+            setTraceId(traceId)
         }
 
         return createEnterSpan(getCurrentSpan()).apply {
+            this.traceId = traceId
             this.originIp = remoteIp
             this.originAppName = remoteAppName
             this.type = HandlerType.SERVLET.name

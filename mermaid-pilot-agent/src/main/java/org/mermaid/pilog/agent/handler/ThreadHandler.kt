@@ -1,6 +1,6 @@
 package org.mermaid.pilog.agent.handler
 
-import org.mermaid.pilog.agent.common.getTraceId
+import org.mermaid.pilog.agent.common.generateTraceId
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.Span
 import org.mermaid.pilog.agent.model.createEnterSpan
@@ -21,7 +21,7 @@ import java.util.concurrent.ForkJoinTask
 class ThreadHandler : IHandler {
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
         //获取当前traceId
-        var span : Span? = getCurrentSpan()?:Span(getTraceId())
+        var span : Span? = getCurrentSpan()?:Span(generateTraceId())
         return createEnterSpan(span).apply {
             this.className = className
             this.methodName = method.name

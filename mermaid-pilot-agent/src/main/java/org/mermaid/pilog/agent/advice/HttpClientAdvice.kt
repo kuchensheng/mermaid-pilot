@@ -3,6 +3,7 @@ package org.mermaid.pilog.agent.advice
 import net.bytebuddy.asm.Advice
 import org.mermaid.pilog.agent.handler.HttpClientHandler
 import org.mermaid.pilog.agent.handler.getHandler
+import org.mermaid.pilog.agent.plugin.factory.logger
 import java.lang.reflect.Method
 
 /**
@@ -18,6 +19,7 @@ object HttpClientAdvice {
     @Advice.OnMethodEnter
     fun enter(@Advice.Origin("#t") className: String?, @Advice.Origin method: Method, @Advice.AllArguments args: Array<*>) {
         try {
+            logger.info("执行方法：$className#${method.name}")
             getHandler(HttpClientHandler::class.java).before(className,method,args)
         } catch (e: Exception) {
             e.printStackTrace()

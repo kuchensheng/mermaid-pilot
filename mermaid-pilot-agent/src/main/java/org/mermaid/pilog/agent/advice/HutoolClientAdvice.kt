@@ -4,7 +4,6 @@ import cn.hutool.http.HttpRequest
 import net.bytebuddy.asm.Advice
 import net.bytebuddy.implementation.bind.annotation.Super
 import org.mermaid.pilog.agent.common.getParameterInfo
-import org.mermaid.pilog.agent.common.getTraceId
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.handler.HEADER_REMOTE_APP
 import org.mermaid.pilog.agent.handler.HEADER_REMOTE_IP
@@ -39,7 +38,7 @@ object HutoolClientAdvice {
                 this.requestMethod = instance.method.name
                 this.requestUri = URL(instance.url).toURI().path
                 this.parameterInfo = getParameterInfo(instance)
-                instance.header(HEADER_TRACE_ID, getTraceId())
+                instance.header(HEADER_TRACE_ID, this.traceId)
                         .header(HEADER_REMOTE_IP, getHostName())
                         .header(HEADER_REMOTE_APP, getAppName())
                 this.methodName = method.name

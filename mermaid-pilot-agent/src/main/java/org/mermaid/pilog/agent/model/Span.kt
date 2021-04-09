@@ -1,10 +1,12 @@
 package org.mermaid.pilog.agent.model
 
 import org.mermaid.pilog.agent.common.generateSpanId
-import org.mermaid.pilog.agent.common.getTraceId
+import org.mermaid.pilog.agent.common.generateTraceId
+import org.mermaid.pilog.agent.common.getAndSetTraceId
 import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.handler.getAppName
-import org.mermaid.pilog.agent.plugin.factory.logger
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.net.Inet4Address
 import java.time.Duration
 import java.time.LocalDateTime
@@ -54,7 +56,7 @@ class Span {
 }
 
 val localSpan = ThreadLocal<Stack<Span>>()
-
+private val logger: Logger = LoggerFactory.getLogger(Span::class.java)
 /**
  * 获取当前服务的IP地址
  */
@@ -68,8 +70,9 @@ val lock = ReentrantLock()
 fun createEnterSpan(currentSpan: Span?) : Span {
     lock.lock()
     return try {
-        Span(getTraceId()).apply {
-            this.spanId = generateSpanId((currentSpan?.spanId?: ROOT_SPAN_ID).also { this.parentId = it })
+        Span(currentSpan?.traceId ?: getAndSetTraceId()).apply {
+            this.parentId = currentSpan?.spanId ?: ROOT_SPAN_ID
+            this.spanId = generateSpanId(this.traceId)
             this.startTime = LocalDateTime.now()
             localSpan.getOrSet { Stack() }.push(this)
         }
@@ -83,10 +86,12 @@ fun createEnterSpan(currentSpan: Span?) : Span {
  */
 fun getCurrentSpan() : Span?  = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
-fun getCurrentSpanAndRemove(throwable: Throwable?) = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.pop() else null }?.apply {
+fun getCurrentSpanAndRemove(throwable: Throwable?) = getCurrentSpan()?.run {
+    logger.debug("获取当前span信息,$this")
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
     this.throwable = throwable
-    logger.apply { this.level = java.util.logging.Level.OFF }.info("取出span：${toString()}")
+    localSpan.get().remove(this)
     produce(this)
+
 }

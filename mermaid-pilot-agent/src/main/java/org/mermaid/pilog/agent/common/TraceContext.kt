@@ -13,5 +13,6 @@ import kotlin.concurrent.getOrSet
  * @version 1.0
  */
 private val traceContext = ThreadLocal<TraceContextModel>()
+val traceIds = ThreadLocal<String>()
 fun getTraceId() : String = traceContext.getOrSet { TraceContextModel() }.traceId
-fun setTraceId(traceId : String) = traceContext.getOrSet { TraceContextModel(traceId) }
+fun setTraceId(traceId : String) = traceIds.set(traceId)

@@ -1,5 +1,7 @@
 package org.mermaid.pilog.agent.common
 
+import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang.math.RandomUtils
 import java.lang.StringBuilder
 import java.lang.management.ManagementFactory
 import java.net.NetworkInterface
@@ -20,7 +22,7 @@ import kotlin.concurrent.getOrSet
  * @date 2021/2/1911:24
  * @version 1.0
  */
-private val seq = ThreadLocal<AtomicLong>().apply { set(AtomicLong(0)) }
+val seq = ThreadLocal<AtomicLong>()
 private var spanIdMaxValue = ThreadLocal<ConcurrentHashMap<String,AtomicInteger>>()
 
 private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
@@ -41,13 +43,15 @@ private fun getProcessId() = (ManagementFactory.getRuntimeMXBean().name.split("@
  * 生成traceId
  * 生成规则：循环自增seq + 产生ID时间 + 机器MAC + 当前进程号 + 当前线程号
  */
-fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
+@Synchronized
+fun generateTraceId() = "%04d".format(seq.getOrSet { AtomicLong(0) }.getAndIncrement())+"${formatter.format(LocalDateTime.now())}${StringBuilder().apply {  repeat(4){ append(RandomUtils.nextInt(10))}}.toString()}${getProcessId()}"+"%05d".format(Thread.currentThread().id)
 
+fun getAndSetTraceId() = traceIds.getOrSet { generateTraceId() }
 /**
  * 生成spanId
  * @param parentId 上一级spanId
  * @return 当前Span的Id
  */
-fun generateSpanId(parentId: String) : String = spanIdMaxValue.getOrSet { ConcurrentHashMap<String,AtomicInteger>().apply { put(parentId,AtomicInteger(0)) } }?.let { it[parentId]?.getAndIncrement().toString() }
+fun generateSpanId(traceId: String) : String = spanIdMaxValue.getOrSet { ConcurrentHashMap<String,AtomicInteger>().apply { this[traceId] = AtomicInteger(0) } }[traceId]!!.getAndIncrement().toString()
 
 private fun hexByte(b:Byte) = "0000${Integer.toHexString(b.toInt())}".run { substring(length -2) }

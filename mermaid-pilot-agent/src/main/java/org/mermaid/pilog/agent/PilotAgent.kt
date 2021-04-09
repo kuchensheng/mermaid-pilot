@@ -128,11 +128,10 @@ class PilotAgent {
             println("=================================================================")
             loadPlugin()
             loadHandler()
-            repeat(1) {
+            repeat(4) {
                 GlobalScope.launch(CoroutineName("$it")) {
                     logger.info("启动协程,协程Id:${CoroutineName.Key}")
                     while (true) { consume().run {
-                        logger.info("消费到span信息,size = ${this.size}")
                         if (this.isNullOrEmpty()) delay(1000)
                         else report(this) }
                     }

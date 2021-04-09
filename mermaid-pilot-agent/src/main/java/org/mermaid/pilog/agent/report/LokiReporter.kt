@@ -19,10 +19,9 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
     private val logger: Logger = LoggerFactory.getLogger(LokiReporter::class.java)
 
     override fun doReport(list: List<Span>): Int? {
-        val lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.info("跟踪信息上报到Loki,服务地址：$it") }
-        (0 until maxOf(1,(list.size /16).toInt())).forEach { idx ->
-            logger.info("上报日志,$idx")
-            var requestBodyStr = JSONArray().apply {
+        val lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.debug("跟踪信息上报到Loki,服务地址：$it") }
+        (0 until maxOf(1,(list.size /16).toInt())).forEach { _ ->
+            JSONArray().apply {
                 list.forEach { span ->
                     span.parameterInfo = mutableMapOf()
                     add(JSONObject().apply {
@@ -42,21 +41,17 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
                         })
                     })
                 }
-            }.let { JSONObject().apply { this["streams"] = it }.toString() }.also {
-                println("上报报文：$it")
-            }.let {
-                it.toByteArray(Charset.forName("UTF-8"))
+            }.let { JSONObject().apply { this["streams"] = it }.toString().toByteArray(Charsets.UTF_8) }.run {
+                HttpUtil.createPost(lokiService)
+                        .header(Header.CONTENT_ENCODING,"gzip")
+                        .header(Header.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
+                        .header("h-self","true")
+                        .timeout(1000)
+                        .body(this)
+                        .execute()
+            }.run {
+                logger.info("日志上报状态：${this.isOk},响应内容：${this.body()}")
             }
-
-            val response = try {
-                HttpUtil.createPost(lokiService).header(Header.CONTENT_ENCODING,"gzip").header(Header.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE).header("h-self","true").timeout(1000).body(requestBodyStr).execute().apply {
-                    logger.info("上传响应结果:${this.body()}")
-                }.let { it.isOk }
-            } catch (e : Exception) {
-                logger.warn("日志上报异常",e)
-                false
-            }
-            println("上报结果：$response")
         }
 
         return 0
