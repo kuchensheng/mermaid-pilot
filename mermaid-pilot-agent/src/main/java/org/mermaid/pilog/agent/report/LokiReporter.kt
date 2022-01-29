@@ -17,6 +17,8 @@ import java.net.Inet4Address
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
 
 object LokiReporter : AbstractReport(ReportType.LOKI) {
     private val logger: Logger = LoggerFactory.getLogger(LokiReporter::class.java)
@@ -31,9 +33,21 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
                 .writeTimeout(5,TimeUnit.SECONDS)
                 .build()
         }
+        //每次上传16条,否则可能会日志过大
+        (0 until max(1,(list.size /16) + 1)).forEach {
+            val start = it * 16;
+            val end = min((it+1) *16,list.size)
+            list.subList(start,end).run { doLogPush(this) }
+        }
+
+        return 0
+    }
+
+    private fun getLocalTime() = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()
+
+    private fun doLogPush(list: List<LogModel>) {
         var lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.debug("跟踪信息上报到Loki,服务地址：$it") }
         if (!(lokiService.startsWith("https://") || lokiService.startsWith("http://"))) lokiService = "http://"+lokiService;
-//        println("lokiService="+lokiService)
         val logArray = JSONArray()
         list.forEach { model ->
             model.tags.apply {
@@ -72,12 +86,8 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
             println(execute)
             execute.use { it.body?.string() }
         }
-        println("日志上报结果:$result")
-
-        return 0
+        logger.debug("日志上报结果:$result \n")
     }
-
-    private fun getLocalTime() = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()
 }
 
 fun main() {

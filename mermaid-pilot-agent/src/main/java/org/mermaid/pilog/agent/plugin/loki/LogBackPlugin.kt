@@ -9,7 +9,7 @@ import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.InterceptPoint
 
 object LogBackPlugin : IPlugin {
-    override fun getName(): String = "log4j"
+    override fun getName(): String = "logback"
 
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.hasSuperType(ElementMatchers.named("ch.qos.logback.core.encoder.LayoutWrappingEncoder"))
