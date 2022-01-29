@@ -4,11 +4,11 @@ import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
-import org.mermaid.pilog.agent.advice.Log4jAdvice
+import org.mermaid.pilog.agent.advice.LogBackAdvice
 import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.InterceptPoint
 
-object Log4JPlugin : IPlugin {
+object LogBackPlugin : IPlugin {
     override fun getName(): String = "log4j"
 
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
@@ -18,5 +18,5 @@ object Log4JPlugin : IPlugin {
             .and(ElementMatchers.named("convertToBytes"))
     })
 
-    override fun interceptorAdviceClass(): Class<*> = Log4jAdvice::class.java
+    override fun interceptorAdviceClass(): Class<*> = LogBackAdvice::class.java
 }

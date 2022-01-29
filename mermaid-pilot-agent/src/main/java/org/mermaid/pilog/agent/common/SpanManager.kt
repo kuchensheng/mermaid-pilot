@@ -2,7 +2,7 @@ package org.mermaid.pilog.agent.common
 
 import org.mermaid.pilog.agent.model.LogModel
 import org.mermaid.pilog.agent.report.AbstractReport
-import org.mermaid.pilog.agent.report.ReportStrategy
+import org.mermaid.pilog.agent.report.LokiReporter
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -28,4 +28,4 @@ fun consume() : MutableList<LogModel> {
 fun report(models: List<LogModel>) = getReport(CommandConfig.reportType).report(models).also {
     if (blockingQueue.isEmpty()) traceIds.remove()
 }
-private fun getReport(type: ReportType) : AbstractReport = ReportStrategy().getReporter(type)
+private fun getReport(type: ReportType) : AbstractReport = LokiReporter

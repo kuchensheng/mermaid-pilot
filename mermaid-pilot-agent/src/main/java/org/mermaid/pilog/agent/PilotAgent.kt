@@ -3,10 +3,8 @@ package org.mermaid.pilog.agent
 import kotlinx.coroutines.*
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
-import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.DynamicType
-import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.matcher.ElementMatcher
 import net.bytebuddy.matcher.ElementMatchers
 import net.bytebuddy.matcher.ElementMatchers.*
@@ -15,14 +13,10 @@ import org.mermaid.pilog.agent.common.consume
 import org.mermaid.pilog.agent.common.readCommandLineArgs
 import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
-import org.mermaid.pilog.agent.intercept.HttpClientIntercepter
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.logger
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
 import java.lang.instrument.Instrumentation
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
 
 /**
  * description: vm参数中添加：-javaagent:${user.home}\mermaid-pilot-agent\target\mermaid-pilot-agent-1.0-jar-with-dependencies.jar
@@ -38,7 +32,7 @@ class PilotAgent {
         fun premain(args: String?, inst: Instrumentation) {
             initialize()
             readCommandLineArgs(args?.split(";")?: null)
-            addPlugin().also { addIntercepter(inst) }.run { installOn(inst) }
+            addPlugin().run { installOn(inst) }
         }
 
 
@@ -46,7 +40,7 @@ class PilotAgent {
         fun agentmain(args: String?, inst: Instrumentation) {
             initialize()
             readCommandLineArgs(args?.split(";")?: null)
-            addPlugin().also { addIntercepter(inst) }.run { installOn(inst) }
+            addPlugin().run { installOn(inst) }
         }
 
         /**
@@ -58,37 +52,15 @@ class PilotAgent {
          * 设置全量过滤器匹配规则
          */
         private fun intercepteMatcher() : ElementMatcher.Junction<TypeDescription> = ElementMatchers.named("cn.hutool.http.HttpRequest")//ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named("org.springframework.cloud.gateway.filter.GlobalFilter"))
-//                .or(ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named("org.springframework.cloud.gateway.filter.GlobalFilter"))
-//                        .and(ElementMatchers.not(ElementMatchers.isInterface()))
-//                        .and(ElementMatchers.not(ElementMatchers.isAbstract())))
 
         /**
          * 添加插件
          */
         private fun addPlugin() : AgentBuilder {
             var agentBuilder : AgentBuilder = AgentBuilder.Default().with(builderListener()).disableClassFormatChanges()
-                    .ignore(ElementMatchers.none<TypeDescription>().and(ElementMatchers.nameStartsWith<TypeDescription>("main")))
+                    .ignore(none<TypeDescription>().and(nameStartsWith("main")))
             pluginGroup.forEach { p -> p.buildInterceptPoint().forEach { agentBuilder = agentBuilder.type(notMatcher().and(it.buildTypesMatcher())).transform { builder, _, _, _ -> builder.visit(Advice.to(p.interceptorAdviceClass()).on(ElementMatchers.not(ElementMatchers.isConstructor()).and(it.buildMethodsMatcher()))) } } }
             return agentBuilder
-        }
-
-        /**
-         * 添加拦截器
-         */
-
-        private fun addIntercepter(inst: Instrumentation) {
-            var transformer = AgentBuilder.Transformer { builder, typeDescription, classLoader, module ->
-                builder.method(isMethod<MethodDescription>()
-                        .and(named<MethodDescription>("execute").or(named<MethodDescription>("executeAsync")))
-                        .and(takesArguments(0)))
-                        .intercept(MethodDelegation.to(HttpClientIntercepter::class.java))
-            }
-
-            AgentBuilder.Default()
-                    .type(intercepteMatcher())
-                    .transform(transformer)
-                    .with(builderListener())
-                    .installOn(inst)
         }
 
 

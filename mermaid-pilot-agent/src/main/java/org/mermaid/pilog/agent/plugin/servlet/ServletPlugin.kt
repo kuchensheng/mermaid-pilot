@@ -8,8 +8,6 @@ import org.mermaid.pilog.agent.advice.ServletAdvice
 import org.mermaid.pilog.agent.core.PluginName
 import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.InterceptPoint
-import org.mermaid.pilog.agent.plugin.springweb.controller
-import org.mermaid.pilog.agent.plugin.springweb.restCollection
 
 /**
  * description: TODO
@@ -26,8 +24,7 @@ object ServletPlugin : IPlugin {
     override fun buildInterceptPoint(): Array<InterceptPoint>  = arrayOf(object : InterceptPoint{
         //todo 缺少一步：排除不想拦截的servlet
         override fun buildTypesMatcher(): ElementMatcher<TypeDescription> = ElementMatchers.hasSuperType<TypeDescription>(ElementMatchers.named<TypeDescription>(httpServletName)
-                .and(ElementMatchers.not(ElementMatchers.isAnnotatedWith<TypeDescription>(restCollection).or(ElementMatchers.isAnnotatedWith(controller)))))
-                .and(ElementMatchers.not(ElementMatchers.isAbstract()))
+                .and(ElementMatchers.not(ElementMatchers.isAbstract())))
 
         override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> = ElementMatchers.isMethod<MethodDescription>()
                 .and(ElementMatchers.takesArguments<MethodDescription>(2)

@@ -4,7 +4,6 @@ import net.bytebuddy.asm.Advice
 import net.bytebuddy.implementation.bytecode.assign.Assigner
 import org.mermaid.pilog.agent.handler.ServletHandler
 import org.mermaid.pilog.agent.handler.getHandler
-import org.mermaid.pilog.agent.plugin.factory.logger
 import java.lang.Exception
 import java.lang.reflect.Method
 

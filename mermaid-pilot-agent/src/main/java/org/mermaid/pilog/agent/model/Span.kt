@@ -3,7 +3,6 @@ package org.mermaid.pilog.agent.model
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.getAndSetTraceId
 import org.mermaid.pilog.agent.common.produce
-import org.mermaid.pilog.agent.handler.getAppName
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.Inet4Address
@@ -37,7 +36,6 @@ class Span : LogModel {
     var costTime : Long = 0
     var requestUri:String? = null
     var requestMethod: String? = null
-    var appName: String? = getAppName()
     var throwable: Throwable? = null
     val hostName : String = getHostName()
 
@@ -50,7 +48,7 @@ class Span : LogModel {
         {"traceId":"$traceId","spanId":"$spanId","parentId":"$parentId","type":"$type",
         "startTime":"$startTime","endTime":"$endTime","className":"$className","methodName":"$methodName",
         "originalIp":"$originIp","originalApp":"$originAppName","costTime":",$costTime,",
-        "requestUri":"$requestUri","requestMethod":"$requestMethod","appName":"$appName","hostName":"$hostName",
+        "requestUri":"$requestUri","requestMethod":"$requestMethod","hostName":"$hostName",
         "parameterInfo":"$parameterInfo","throwable":"$throwable"}""".trimIndent().trim()
 }
 

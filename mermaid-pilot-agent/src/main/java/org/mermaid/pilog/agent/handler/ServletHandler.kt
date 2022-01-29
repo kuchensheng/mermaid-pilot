@@ -5,9 +5,6 @@ import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.*
 import org.mermaid.pilog.agent.plugin.factory.logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.env.Environment
-import org.springframework.web.server.ServerWebExchange
 import java.lang.reflect.Method
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -57,7 +54,7 @@ class ServletHandler : IHandler {
             this.originAppName = remoteAppName
             this.type = HandlerType.SERVLET.name
             this.className = className
-            this.parameterInfo = getParameterInfo(request)
+//            this.parameterInfo = getParameterInfo(request)
             this.requestUri = uri
             this.requestMethod = request?.method
             this.methodName = method.name
@@ -84,16 +81,7 @@ fun addHeader(request: HttpServletRequest?, name: String, value: String) = reque
     putHeader(name,value)
 } }
 
-fun getOriginalIp(exchange: ServerWebExchange) : String {
-    exchange.request.headers.getFirst(HEADER_REMOTE_IP)?.run { return this }
-    var ip = exchange.request.headers.getFirst("X-Forwarded-For")
-    if (null != ip && !"unknown".equals(ip,ignoreCase = true)) {
-        return if (ip.contains(",")) ip.split(",").first() else ip
-    }
-    ip =  exchange.request.headers.getFirst("X-Real-IP")
-    if (null != ip && "unkown".equals(ip,true)) return ip
-    return exchange.request.remoteAddress.address.hostAddress
-}
+
 fun getOrininalIp(request: HttpServletRequest) : String {
     request.getHeader(HEADER_REMOTE_IP)?.run { return this }
     var ip = request.getHeader("X-Forwarded-For")
@@ -106,11 +94,8 @@ fun getOrininalIp(request: HttpServletRequest) : String {
     return request.remoteAddr
 }
 
-@Autowired
-internal var env : Environment? = null
 
-fun getAppName() : String  = env?.getProperty("spring.application.name")?.also { logger.info("获取到的appName：$it") }?: System.getProperty("application.name","")
+fun getAppName() : String  = CommandConfig.appName ?: "未知应用"
 
-fun getRemoteAppName(exchange: ServerWebExchange) : String =  exchange.request.headers.getFirst(HEADER_REMOTE_APP) ?: ""
 fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP) ?: ""
 
