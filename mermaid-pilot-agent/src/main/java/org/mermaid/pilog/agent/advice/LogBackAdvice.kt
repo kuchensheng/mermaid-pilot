@@ -12,7 +12,7 @@ object LogBackAdvice {
     @JvmStatic
     @Advice.OnMethodEnter
     fun enter(@Advice.Origin method: Method,@Advice.AllArguments args : Array<*>) {
-        println("执行方法${method.name}")
+//        println("执行方法${method.name}")
         //todo 生成日志
         val content = args[0].toString()
         val logInfo = LogInfo().apply { this.content = content }

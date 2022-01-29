@@ -25,15 +25,15 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
     private var httpClient : OkHttpClient? = null
     override fun doReport(list: List<LogModel>): Int? {
         if (list.isNullOrEmpty()) return 0
-        println("日志上报")
+//        println("日志上报")
         httpClient?:run {
             httpClient = OkHttpClient().newBuilder().callTimeout(3, TimeUnit.SECONDS)
                 .writeTimeout(5,TimeUnit.SECONDS)
-                .build();
+                .build()
         }
         var lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.debug("跟踪信息上报到Loki,服务地址：$it") }
         if (!(lokiService.startsWith("https://") || lokiService.startsWith("http://"))) lokiService = "http://"+lokiService;
-        println("lokiService="+lokiService)
+//        println("lokiService="+lokiService)
         val logArray = JSONArray()
         list.forEach { model ->
             model.tags.apply {
@@ -57,18 +57,17 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
             logArray.add(map)
         }
         val requestBodyStr = JSONObject().apply { put("streams",logArray) }.toString()
-        val requestBody = requestBodyStr.toRequestBody(mediaType)
-        val headers = Headers.Builder()
-            .add("Accept-Encoding","gzip")
-            .add("Content-Type","application/json")
-            .add("Connection","keep-alive")
-            .build()
+        val requestBody = requestBodyStr.toRequestBody()
         val request = Request.Builder()
             .url(lokiService)
             .post(requestBody)
-            .headers(headers)
+            .addHeader("Accept-Encoding","gzip, deflate, br")
+            .addHeader("Content-Type","application/json")
+            .addHeader("Connection","keep-alive")
+            .addHeader("Content-Length",requestBody.contentLength().toString())
             .build()
         val result = httpClient?.run {
+            println(request)
             val execute = newCall(request).execute()
             println(execute)
             execute.use { it.body?.string() }
@@ -79,4 +78,14 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
     }
 
     private fun getLocalTime() = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()
+}
+
+fun main() {
+    CommandConfig.serviceHost = "10.30.30.87:3100"
+    val list = mutableListOf<LogModel>().apply {
+        val logInfo = LogInfo()
+        logInfo.content = "哈哈哈哈"
+        add(logInfo)
+    }
+    LokiReporter.doReport(list)
 }
