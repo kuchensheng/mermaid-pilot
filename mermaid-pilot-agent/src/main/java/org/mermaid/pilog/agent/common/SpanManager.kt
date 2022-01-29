@@ -1,13 +1,10 @@
 package org.mermaid.pilog.agent.common
 
-import org.mermaid.pilog.agent.core.HandlerType
-import org.mermaid.pilog.agent.model.Span
+import org.mermaid.pilog.agent.model.LogModel
 import org.mermaid.pilog.agent.report.AbstractReport
 import org.mermaid.pilog.agent.report.ReportStrategy
 import java.util.*
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.math.max
 
 /**
  * description: span信息管理
@@ -17,18 +14,18 @@ import kotlin.math.max
  * @date 2021/2/1911:24
  * @version 1.0
  */
-val threadLocalSpan = ThreadLocal<Stack<Span>>()
-private val blockingQueue = CopyOnWriteArrayList<Span>()
+val threadLocalSpan = ThreadLocal<Stack<LogModel>>()
+val blockingQueue = CopyOnWriteArrayList<LogModel>()
 
 
-fun produce(span: Span) = blockingQueue.add(span)
+fun produce(span: LogModel) = blockingQueue.add(span)
 
 @Synchronized
-fun consume() : MutableList<Span> {
+fun consume() : MutableList<LogModel> {
     return blockingQueue.toMutableList().also { blockingQueue.clear() }
 }
 
-fun report(spans: List<Span>) = getReport(CommandConfig.reportType).report(spans).also {
+fun report(models: List<LogModel>) = getReport(CommandConfig.reportType).report(models).also {
     if (blockingQueue.isEmpty()) traceIds.remove()
 }
 private fun getReport(type: ReportType) : AbstractReport = ReportStrategy().getReporter(type)

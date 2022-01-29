@@ -4,6 +4,7 @@ import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.httpclient.*
 import org.mermaid.pilog.agent.plugin.jdbc.JdbcPlugin
 import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
+import org.mermaid.pilog.agent.plugin.loki.Log4JPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.redis.RedisPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
@@ -30,6 +31,7 @@ enum class PluginName {
     JDBC("jdbc",JdbcPlugin),
     REDIS("redis",RedisPlugin),
 //    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
+    LOG4J("log4j",Log4JPlugin)
     ;
 
     var code: String

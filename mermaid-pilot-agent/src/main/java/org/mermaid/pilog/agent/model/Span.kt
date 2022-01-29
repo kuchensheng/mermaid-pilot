@@ -1,7 +1,6 @@
 package org.mermaid.pilog.agent.model
 
 import org.mermaid.pilog.agent.common.generateSpanId
-import org.mermaid.pilog.agent.common.generateTraceId
 import org.mermaid.pilog.agent.common.getAndSetTraceId
 import org.mermaid.pilog.agent.common.produce
 import org.mermaid.pilog.agent.handler.getAppName
@@ -22,7 +21,7 @@ import kotlin.concurrent.getOrSet
  * @date 2021/2/1910:58
  * @version 1.0
  */
-class Span {
+class Span : LogModel {
     var originAppName: String = ""
     var originIp: String = ""
     var type: String? = ""

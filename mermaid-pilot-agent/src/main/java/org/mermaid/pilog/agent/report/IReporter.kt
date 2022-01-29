@@ -1,6 +1,7 @@
 package org.mermaid.pilog.agent.report
 
 import org.mermaid.pilog.agent.common.ReportType
+import org.mermaid.pilog.agent.model.LogModel
 import org.mermaid.pilog.agent.model.Span
 
 /**
@@ -13,8 +14,8 @@ import org.mermaid.pilog.agent.model.Span
  */
 interface IReporter {
 
-    fun report(span: Span) : Int?
+    fun report(span: LogModel) : Int?
 
-    fun report(list: List<Span>) : Int?
+    fun report(list: List<LogModel>) : Int?
 
 }

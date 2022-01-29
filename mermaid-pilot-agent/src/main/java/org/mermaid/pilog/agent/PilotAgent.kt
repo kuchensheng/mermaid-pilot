@@ -1,9 +1,6 @@
 package org.mermaid.pilog.agent
 
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.bytebuddy.agent.builder.AgentBuilder
 import net.bytebuddy.asm.Advice
 import net.bytebuddy.description.method.MethodDescription
@@ -129,7 +126,7 @@ class PilotAgent {
             loadPlugin()
             loadHandler()
             repeat(4) {
-                GlobalScope.launch(CoroutineName("$it")) {
+                CoroutineScope(Dispatchers.IO).launch {
                     logger.info("启动协程,协程Id:${CoroutineName.Key}")
                     while (true) { consume().run {
                         if (this.isNullOrEmpty()) delay(1000)

@@ -1,12 +1,12 @@
 package org.mermaid.pilog.agent.util
 
-import org.apache.commons.lang.math.RandomUtils
-import java.lang.StringBuilder
+object HttpUtil {
 
-class HttpUtil {
+    private val STREAM = "stream"
+    private val VALUES = "values"
+    private val STREAMS = "streams"
+    private val JOB = "job"
 
-}
 
-fun main() {
-    println(StringBuilder().apply {  repeat(4){ append(RandomUtils.nextInt(10))}}.toString())
+
 }

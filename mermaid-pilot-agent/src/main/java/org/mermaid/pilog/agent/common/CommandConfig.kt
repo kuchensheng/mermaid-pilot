@@ -1,7 +1,7 @@
 package org.mermaid.pilog.agent.common
 
 fun readCommandLineArgs(args: List<String>?) {
-    org.mermaid.pilog.agent.plugin.factory.logger.info("命令行参数，args = $args,size = ${args?.size}")
+    println("命令行参数，args = $args,size = ${args?.size}")
     args?.forEach { arg ->
         println("args:$arg")
         arg.split("=").let {
