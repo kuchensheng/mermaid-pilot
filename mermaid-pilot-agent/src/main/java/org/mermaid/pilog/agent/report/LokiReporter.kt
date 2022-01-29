@@ -34,9 +34,9 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
                 .build()
         }
         //每次上传16条,否则可能会日志过大
-        (0 until max(1,(list.size /16) + 1)).forEach {
-            val start = it * 16;
-            val end = min((it+1) *16,list.size)
+        (0 until max(1,(list.size /4) + 1)).forEach {
+            val start = it * 4;
+            val end = min((it+1) *4,list.size)
             list.subList(start,end).run { doLogPush(this) }
         }
 
@@ -81,9 +81,7 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
             .addHeader("Content-Length",requestBody.contentLength().toString())
             .build()
         val result = httpClient?.run {
-            println(request)
             val execute = newCall(request).execute()
-            println(execute)
             execute.use { it.body?.string() }
         }
         logger.debug("日志上报结果:$result \n")

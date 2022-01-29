@@ -101,7 +101,7 @@ class PilotAgent {
                 CoroutineScope(Dispatchers.IO).launch {
                     logger.info("启动协程,协程Id:${CoroutineName.Key}")
                     while (true) { consume().run {
-                        if (this.isNullOrEmpty()) delay(1000)
+                        if (this.isNullOrEmpty()) delay(100)
                         else report(this) }
                     }
                 }
