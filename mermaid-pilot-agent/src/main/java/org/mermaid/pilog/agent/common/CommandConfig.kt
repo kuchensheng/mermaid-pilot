@@ -1,18 +1,10 @@
 package org.mermaid.pilog.agent.common
 
-import com.sun.nio.file.SensitivityWatchEventModifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.sf.json.JSONObject
-import okio.ByteString.Companion.toByteString
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor
-import org.apache.commons.io.monitor.FileAlterationMonitor
-import org.apache.commons.io.monitor.FileAlterationObserver
 import org.mermaid.pilog.agent.advice.LogInfo
-import java.io.File
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
+import java.io.RandomAccessFile
 import java.nio.file.*
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -36,7 +28,7 @@ fun readCommandLineArgs(args: List<String>?) {
 private fun logFileWatcher(dir : String) {
     println("监听日志文件目录:$dir")
     val watchService = FileSystems.getDefault().newWatchService()
-    Paths.get(dir).register(watchService, arrayOf(StandardWatchEventKinds.ENTRY_MODIFY),SensitivityWatchEventModifier.HIGH)
+    Paths.get(dir).register(watchService, arrayOf(StandardWatchEventKinds.ENTRY_MODIFY))
     var lastPosition = 0L
     CoroutineScope(Dispatchers.IO).launch {
         while (true) {
@@ -56,28 +48,28 @@ private fun logFileWatcher(dir : String) {
             //更新事件超过1s钟的文件内容则放弃读取
             if (now - lastModifiedTime > 1000) {
                 lastPosition = Files.size(fullPath)
+                take.reset()
                 continue
             }
             println("读取文件内容path=$fullPath,lastPosition=$lastPosition")
             try {
-                val channel = Files.newByteChannel(fullPath, StandardOpenOption.DSYNC)
-                //增量读取文件内容
-                val buffer = ByteBuffer.allocateDirect(65536)
-                channel.use {
-                    it.position(lastPosition).read(buffer)
-                    lastPosition = it.position()
+                val accessFile = RandomAccessFile(fullPath.toFile(), "r")
+                accessFile.seek(lastPosition)
+                val buffer = ByteArray(65535)
+                while (accessFile.read(buffer) <= 0) {
+                    break;
                 }
-                val c = buffer.toByteString().toString()
-                println("开始日志上报,content=$c")
-                //日志上报
-                val logInfo = LogInfo().apply {
-                    tags["kucs"] = "watcher"
-                    content = c
+                buffer.toString().split("\n").forEach {
+                    val logInfo = LogInfo().apply {
+                        tags["kucs"] = "watcher"
+                        content = it
+                    }
+                    blockingQueue.add(logInfo)
                 }
-                println("日志内容:${JSONObject.fromObject(logInfo).toString()}")
-                blockingQueue.add(logInfo)
             } catch (e: Exception) {
                 e.stackTrace
+            } finally {
+                take.reset()
             }
         }
     }
