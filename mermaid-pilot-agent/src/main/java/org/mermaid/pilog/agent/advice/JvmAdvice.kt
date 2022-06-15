@@ -1,8 +1,7 @@
 package org.mermaid.pilog.agent.advice
 
-import net.bytebuddy.asm.Advice
-import org.mermaid.pilog.agent.plugin.jvm.printGCInfo
 import org.mermaid.pilog.agent.plugin.jvm.printMemoryInfo
+import kotlin.concurrent.fixedRateTimer
 
 /**
  * description: TODO
@@ -13,10 +12,10 @@ import org.mermaid.pilog.agent.plugin.jvm.printMemoryInfo
  * @version 1.0
  */
 object JvmAdvice {
-    @JvmStatic
-    @Advice.OnMethodExit
-    fun exit() {
-        printMemoryInfo()
-        printGCInfo()
+    init {
+        println("初始化JVMAdvice，每秒打印一次")
+        fixedRateTimer("get memory and gc info",false,30000,1000) {
+            printMemoryInfo()
+        }
     }
 }

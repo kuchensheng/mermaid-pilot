@@ -13,6 +13,7 @@ import org.mermaid.pilog.agent.common.consume
 import org.mermaid.pilog.agent.common.readCommandLineArgs
 import org.mermaid.pilog.agent.common.report
 import org.mermaid.pilog.agent.handler.loadHandler
+import org.mermaid.pilog.agent.handler.loadRunner
 import org.mermaid.pilog.agent.plugin.factory.loadPlugin
 import org.mermaid.pilog.agent.plugin.factory.logger
 import org.mermaid.pilog.agent.plugin.factory.pluginGroup
@@ -97,6 +98,7 @@ class PilotAgent {
             println("=================================================================")
             loadPlugin()
             loadHandler()
+            loadRunner()
             repeat(4) {
                 CoroutineScope(Dispatchers.IO).launch {
                     logger.info("启动协程,协程Id:${CoroutineName.Key}")

@@ -11,4 +11,8 @@ package org.mermaid.pilog.agent.model
 abstract class LogModel {
     val tags = mutableMapOf<String,String>()
     var content : String = ""
+
+    override fun toString(): String {
+        return content
+    }
 }

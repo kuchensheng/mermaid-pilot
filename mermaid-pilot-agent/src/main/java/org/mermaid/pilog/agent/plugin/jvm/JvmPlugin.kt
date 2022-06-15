@@ -18,25 +18,25 @@ import org.mermaid.pilog.agent.plugin.InterceptPoint
  * @date 2021/2/1817:46
  * @version 1.0
  */
-object JvmPlugin : IPlugin {
-
-    override fun getName(): String? = PluginName.JVMPLUGIN.code
-
-    override fun buildInterceptPoint(): Array<InterceptPoint> {
-        return arrayOf(
-                object : InterceptPoint {
-                    override fun buildTypesMatcher(): ElementMatcher<TypeDescription> {
-                        return ElementMatchers.nameStartsWith<TypeDescription>("org.example")
-                    }
-
-                    override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> {
-                        return ElementMatchers.isMethod<MethodDescription>()
-                                .and(ElementMatchers.any<MethodDescription>())
-                                .and(ElementMatchers.not(ElementMatchers.nameStartsWith("main")))
-                    }
-                }
-        )
-    }
-
-    override fun interceptorAdviceClass(): Class<*>  = JvmAdvice::class.java
-}
+//object JvmPlugin : IPlugin {
+//
+//    override fun getName(): String? = PluginName.JVMPLUGIN.code
+//
+//    override fun buildInterceptPoint(): Array<InterceptPoint> {
+//        return arrayOf(
+//                object : InterceptPoint {
+//                    override fun buildTypesMatcher(): ElementMatcher<TypeDescription> {
+//                        return ElementMatchers.nameStartsWith<TypeDescription>("org.example")
+//                    }
+//
+//                    override fun buildMethodsMatcher(): ElementMatcher<MethodDescription> {
+//                        return ElementMatchers.isMethod<MethodDescription>()
+//                                .and(ElementMatchers.any<MethodDescription>())
+//                                .and(ElementMatchers.not(ElementMatchers.nameStartsWith("main")))
+//                    }
+//                }
+//        )
+//    }
+//
+//    override fun interceptorAdviceClass(): Class<*>  = JvmAdvice::class.java
+//}

@@ -1,6 +1,7 @@
 package org.mermaid.pilog.agent.handler
 
 import org.mermaid.pilog.agent.core.HandlerName
+import org.mermaid.pilog.agent.runner.JvmRunner
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -25,4 +26,8 @@ fun loadHandler() {
 fun loadHandler(clazz: Class<out IHandler>) : IHandler {
     val instanceKey = "${clazz.name}"
     return handlerMap[instanceKey] ?: clazz.newInstance().apply { handlerMap[instanceKey] = this }
+}
+
+fun loadRunner() {
+    JvmRunner
 }

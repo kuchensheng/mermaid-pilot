@@ -80,6 +80,11 @@
       <version>2.7</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>sigar</groupId>
+      <artifactId>sigar-native-deps</artifactId>
+      <version>1.7.0-v20131027</version>
+    </dependency>
   </dependencies>
   <build>
 

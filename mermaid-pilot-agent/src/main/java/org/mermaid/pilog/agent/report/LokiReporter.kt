@@ -6,6 +6,7 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.mermaid.pilog.agent.advice.LogInfo
 import org.mermaid.pilog.agent.common.CommandConfig
@@ -48,29 +49,28 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
     private fun doLogPush(list: List<LogModel>) {
         var lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.debug("跟踪信息上报到Loki,服务地址：$it") }
         if (!(lokiService.startsWith("https://") || lokiService.startsWith("http://"))) lokiService = "http://"+lokiService;
-        val logArray = JSONArray()
+        val logArray = mutableListOf<Map<String,Any>>()
         list.forEach { model ->
+
+            if (!model.tags.contains("job")) {
+                model.tags["job"] = "traceInfos"
+            }
             model.tags.apply {
                 this["podIp"] = Inet4Address.getLocalHost().hostName
                 CommandConfig.appName?.let { this["appName"] = it }
-                this["job"] = "traceInfos"
-                this["time"] = "${getLocalTime()}000000"
                 this["stream"] = "sdk"
             }
-            JSONObject().apply {
-                put("stream",model.tags)
-            }
+            logger.info("model.tags = ${model.tags}")
             val map = mutableMapOf<String,Any>().apply {
-                val valuesArray = JSONArray().apply {
-                    add("${getLocalTime()}000000")
-                    if (model is LogInfo) add(model.content) else add(model.toString())
-                }
+                val values = arrayListOf("${getLocalTime()}000000","${model.content}")
                 this["stream"] = model.tags
-                this["values"] = JSONArray().apply { add(valuesArray) }
+                this["values"] = arrayListOf(values)
             }
             logArray.add(map)
         }
+
         val requestBodyStr = JSONObject().apply { put("streams",logArray) }.toString()
+        logger.info("requestBody = $requestBodyStr")
         val requestBody = requestBodyStr.toRequestBody()
         val request = Request.Builder()
             .url(lokiService)
@@ -84,7 +84,7 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
             val execute = newCall(request).execute()
             execute.use { it.body?.string() }
         }
-        logger.debug("日志上报结果:$result \n")
+        logger.info("日志上报结果:$result \n")
     }
 }
 

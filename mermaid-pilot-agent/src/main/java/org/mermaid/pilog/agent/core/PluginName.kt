@@ -3,7 +3,6 @@ package org.mermaid.pilog.agent.core
 import org.mermaid.pilog.agent.plugin.IPlugin
 import org.mermaid.pilog.agent.plugin.httpclient.*
 import org.mermaid.pilog.agent.plugin.jdbc.JdbcPlugin
-import org.mermaid.pilog.agent.plugin.jvm.JvmPlugin
 import org.mermaid.pilog.agent.plugin.loki.LogBackPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.redis.RedisPlugin
@@ -18,7 +17,7 @@ import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
  * @version 1.0
  */
 enum class PluginName {
-    JVMPLUGIN("jvm",JvmPlugin),
+//    JVMPLUGIN("jvm",JvmPlugin),
     SERVLET("servlet",ServletPlugin),
     PROCESS("process",ProcessPlugin),
     OKHTTP3PLUGIN("okhttp3", OkHttpClient3xPlugin),
@@ -26,7 +25,7 @@ enum class PluginName {
     JDBC("jdbc",JdbcPlugin),
     REDIS("redis",RedisPlugin),
 //    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
-    LOG4J("log4j",LogBackPlugin)
+//    LOG4J("log4j",LogBackPlugin)
     ;
 
     var code: String
