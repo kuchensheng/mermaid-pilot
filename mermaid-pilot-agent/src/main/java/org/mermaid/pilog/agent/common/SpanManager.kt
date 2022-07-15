@@ -25,7 +25,7 @@ fun consume() : MutableList<LogModel> {
     return blockingQueue.toMutableList().also { blockingQueue.clear() }
 }
 
-fun report(models: List<LogModel>) = getReport(CommandConfig.reportType).report(models).also {
+fun report(models: List<LogModel>) = getReport(config.reportType).report(models).also {
     if (blockingQueue.isEmpty()) traceIds.remove()
 }
 private fun getReport(type: ReportType) : AbstractReport = LokiReporter

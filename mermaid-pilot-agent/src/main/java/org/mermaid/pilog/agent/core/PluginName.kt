@@ -7,6 +7,7 @@ import org.mermaid.pilog.agent.plugin.loki.LogBackPlugin
 import org.mermaid.pilog.agent.plugin.process.ProcessPlugin
 import org.mermaid.pilog.agent.plugin.redis.RedisPlugin
 import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
+import org.mermaid.pilog.agent.plugin.servlet.SpringPlugin
 
 /**
  * description: 插件名枚举
@@ -19,13 +20,14 @@ import org.mermaid.pilog.agent.plugin.servlet.ServletPlugin
 enum class PluginName {
 //    JVMPLUGIN("jvm",JvmPlugin),
     SERVLET("servlet",ServletPlugin),
-    PROCESS("process",ProcessPlugin),
+//    PROCESS("process",ProcessPlugin),
     OKHTTP3PLUGIN("okhttp3", OkHttpClient3xPlugin),
 //    THREADPLUGIN("thread",ThreadPlugin),
     JDBC("jdbc",JdbcPlugin),
     REDIS("redis",RedisPlugin),
 //    JDKHTTPCLIENTPLUGIN("jdkulconnection", JdkHttpURLConnectionPlugin)
 //    LOG4J("log4j",LogBackPlugin)
+    SPRING("spring",SpringPlugin)
     ;
 
     var code: String

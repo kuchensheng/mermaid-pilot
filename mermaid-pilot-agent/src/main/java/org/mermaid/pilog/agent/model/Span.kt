@@ -1,5 +1,7 @@
 package org.mermaid.pilog.agent.model
 
+import net.sf.json.JSONObject
+import org.mermaid.pilog.agent.common.config
 import org.mermaid.pilog.agent.common.generateSpanId
 import org.mermaid.pilog.agent.common.getAndSetTraceId
 import org.mermaid.pilog.agent.common.produce
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory
 import java.net.Inet4Address
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.getOrSet
@@ -83,12 +86,28 @@ fun createEnterSpan(currentSpan: Span?) : Span {
  */
 fun getCurrentSpan() : Span?  = localSpan.get()?.let { if (!it.isNullOrEmpty()) it.peek() else null }
 
-fun getCurrentSpanAndRemove(throwable: Throwable?) = getCurrentSpan()?.run {
-    logger.debug("获取当前span信息,$this")
+fun getCurrentSpanAndRemove(throwable: Throwable?,isTrace :Boolean? = false) = getCurrentSpan()?.run {
+//    logger.info("获取当前span信息,${JSONObject.fromObject(this)}")
     this.endTime = LocalDateTime.now()
     this.costTime = Duration.between(this.startTime,this.endTime).toMillis()
     this.throwable = throwable
-    localSpan.get().remove(this)
+    this.content = buildLog(this)
     produce(this)
-
+    localSpan.get().remove(this)
 }
+
+//组装trace信息
+fun buildLog(span : Span) : String = mutableListOf("0",
+        span.startTime.toInstant(ZoneOffset.of("+8")).toEpochMilli().toString(),
+        span.traceId,
+        span.spanId,
+        "1",
+        span.type,
+        "<${span.methodName}>${span.requestUri}",
+        config.appName,
+        getHostName(),
+        span.originIp,
+        span.throwable?.run { "0" } ?: "1",
+        span.result?.toString()?.length?.toString()?:"0",
+        span.costTime.toString(),
+        span.throwable?.message?:"").joinToString("|")

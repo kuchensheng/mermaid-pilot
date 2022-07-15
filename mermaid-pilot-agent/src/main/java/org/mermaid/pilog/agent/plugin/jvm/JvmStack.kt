@@ -3,8 +3,8 @@ package org.mermaid.pilog.agent.plugin.jvm
 import com.sun.management.OperatingSystemMXBean
 import com.sun.management.ThreadMXBean
 import net.sf.json.JSONObject
-import org.mermaid.pilog.agent.common.CommandConfig
 import org.mermaid.pilog.agent.common.blockingQueue
+import org.mermaid.pilog.agent.common.config
 import org.mermaid.pilog.agent.model.LogModel
 import org.mermaid.pilog.agent.plugin.factory.logger
 import java.lang.management.*
@@ -50,7 +50,7 @@ fun memory() {
     jsonObject["os_memory_usage"] = usageMemory
 
     blockingQueue.add(JvmInfo().apply {
-        tags["application_name"] = CommandConfig.appName?: "default_name"
+        tags["application_name"] = config.appName?: "default_name"
         tags["job"] = "os_info"
         content = """${jsonObject.toString().replace("{","\"{").replace("}","}\"")}"""
     })

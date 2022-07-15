@@ -1,5 +1,6 @@
 package org.mermaid.pilog.agent.handler
 
+import net.sf.json.JSONObject
 import org.mermaid.pilog.agent.common.*
 import org.mermaid.pilog.agent.core.HandlerType
 import org.mermaid.pilog.agent.model.*
@@ -18,21 +19,17 @@ import javax.servlet.http.HttpServletRequestWrapper
  * @date 2021/2/1911:05
  * @version 1.0
  */
-const val HEADER_TRACE_ID = "t-headTraceId"
+const val HEADER_TRACE_ID = "t-head-traceId"
 const val HEADER_SPAN_ID = "t-header-span-id"
-const val HEADER_REMOTE_IP = "t-headRemoteIp"
+const val HEADER_REMOTE_IP = "t-head-remoteIp"
 const val HEADER_REMOTE_APP = "t-headRemoteApp"
+const val TRACE_HEAD_RPC_ID = "t-head-rpcId"
 val parameterNames = hashSetOf("sec-fetch-mode","sec-fetch-site","accept-language","sec-fetch-user","cache-control","user-agent","sec-fetch-dest","host","accept-encoding")
 class ServletHandler : IHandler {
     private val logger = LoggerFactory.getLogger(ServletHandler::class.java)
 
     override fun before(className: String?, method: Method, args: Array<*>?): Span {
-        println("执行类：ServletHandler")
-        args?.forEach {
-            println("参数信息： $it")
-        }
         val request = args?.get(0) as HttpServletRequest
-        println("执行request：$request")
         val uri =  request.requestURI.toString()
         val remoteIp = request?.let { getOrininalIp(it) }
         val remoteAppName = request?.let { getRemoteAppName(it) }
@@ -58,6 +55,8 @@ class ServletHandler : IHandler {
             this.requestUri = uri
             this.requestMethod = request?.method
             this.methodName = method.name
+        }.also {
+            logger.info("span信息:${JSONObject.fromObject(it)}")
         }
     }
 
@@ -66,7 +65,8 @@ class ServletHandler : IHandler {
 //        val requestAttribute = RequestContextHolder.getRequestAttributes()
 //        val response = requestAttribute?.let { (it as ServletRequestAttributes).response }
         //todo 是否记录
-        getCurrentSpanAndRemove(thrown)
+        logger.info("记录和移除span信息")
+        getCurrentSpanAndRemove(thrown,true)
     }
 }
 
@@ -95,7 +95,7 @@ fun getOrininalIp(request: HttpServletRequest) : String {
 }
 
 
-fun getAppName() : String  = CommandConfig.appName ?: "未知应用"
+fun getAppName() : String  = config.appName ?: "未知应用"
 
 fun getRemoteAppName(request: HttpServletRequest): String = request.getHeader(HEADER_REMOTE_APP) ?: ""
 

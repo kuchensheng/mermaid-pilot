@@ -3,26 +3,30 @@ package org.mermaid.pilog.agent.common
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.sf.json.JSONObject
 import org.mermaid.pilog.agent.advice.LogInfo
 import java.io.RandomAccessFile
 import java.nio.file.*
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+val config = CommandConfig
 fun readCommandLineArgs(args: List<String>?) {
     println("命令行参数，args = $args,size = ${args?.size}")
     args?.forEach { arg ->
         println("args:$arg")
         arg.split("=").let {
             when (it[0]) {
-                "report.service.host" -> CommandConfig.serviceHost = it[1]
-                "report.service.url" -> CommandConfig.serviceUri = it[1]
-                "report.service.type" -> it[1]?.let { v ->  CommandConfig.reportType = ReportType.valueOf(v) }
-                "spring.application.name" -> CommandConfig.appName = it[1]
+                "report.service.host" -> config.serviceHost = it[1]
+                "report.service.url" -> config.serviceUri = it[1]
+                "report.service.type" -> it[1]?.let { v ->  config.reportType = ReportType.valueOf(v) }
+                "spring.application.name" -> config.appName = it[1]
                 "log.path" -> logFileWatcher(it[1])
             }
         }
     }
+    println("配置信息如下:${JSONObject.fromObject(config)}")
+
 }
 
 private fun logFileWatcher(dir : String) {
