@@ -74,7 +74,7 @@ class PilotAgent {
             }
 
             override fun onTransformation(typeDescription: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean, p4: DynamicType?) {
-                println("onTransformation:$typeDescription,dynamicType:$p4")
+//                println("onTransformation:$typeDescription,dynamicType:$p4")
             }
 
             override fun onIgnored(p0: TypeDescription?, p1: ClassLoader?, p2: JavaModule?, p3: Boolean) {
@@ -98,7 +98,7 @@ class PilotAgent {
             println("=================================================================")
             loadPlugin()
             loadHandler()
-            loadRunner()
+//            loadRunner()
             repeat(4) {
                 CoroutineScope(Dispatchers.IO).launch {
                     logger.info("启动协程,协程Id:${CoroutineName.Key}")

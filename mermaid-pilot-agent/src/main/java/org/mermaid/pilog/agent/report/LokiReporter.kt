@@ -25,33 +25,29 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
     private val logger: Logger = LoggerFactory.getLogger(LokiReporter::class.java)
 
     private val mediaType = "application/json".toMediaType()
-    private var httpClient : OkHttpClient? = null
-    override fun doReport(list: List<LogModel>): Int? {
+    private var httpClient : OkHttpClient = OkHttpClient.Builder().callTimeout(3,TimeUnit.SECONDS).writeTimeout(5,TimeUnit.SECONDS).build()
+    override fun doReport(list: List<LogModel>): Int {
         if (list.isNullOrEmpty()) return 0
-//        println("日志上报")
-        httpClient?:run {
-            httpClient = OkHttpClient().newBuilder().callTimeout(3, TimeUnit.SECONDS)
-                .writeTimeout(5,TimeUnit.SECONDS)
-                .build()
-        }
         //每次上传16条,否则可能会日志过大
-        (0 until max(1,(list.size /4) + 1)).forEach {
-            val start = it * 4;
-            val end = min((it+1) *4,list.size)
-            list.subList(start,end).run { doLogPush(this) }
-        }
-
+        (0 until max(1,(list.size /4) + 1)).forEach { doLogPush(list.subList(it * 4,min((it+1) *4,list.size))) }
         return 0
     }
 
     private fun getLocalTime() = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()
 
     private fun doLogPush(list: List<LogModel>) {
-        var lokiService = "${CommandConfig.serviceHost.let { if (it.endsWith("/")) it.dropLast(1) else it }}${CommandConfig.serviceUri.let { if (!it.startsWith("/")) "/$it" else it }}".also { logger.debug("跟踪信息上报到Loki,服务地址：$it") }
-        if (!(lokiService.startsWith("https://") || lokiService.startsWith("http://"))) lokiService = "http://"+lokiService;
-        val logArray = mutableListOf<Map<String,Any>>()
-        list.forEach { model ->
+        var host = CommandConfig.serviceHost
+        if (host.endsWith("/")) {
+            host = host.dropLast(1)
+        }
+        var uri = CommandConfig.serviceUri
+        if (!uri.startsWith("/")){
+            uri = "/$uri"
+        }
 
+        var lokiService = "$host$uri".also { logger.info("跟踪信息上报到Loki,服务地址：$it") }
+        if (!lokiService.startsWith("http")) lokiService = "http://$lokiService"
+        val logArray = list.map { model ->
             if (!model.tags.contains("job")) {
                 model.tags["job"] = "traceInfos"
             }
@@ -61,13 +57,12 @@ object LokiReporter : AbstractReport(ReportType.LOKI) {
                 this["stream"] = "sdk"
             }
             logger.info("model.tags = ${model.tags}")
-            val map = mutableMapOf<String,Any>().apply {
+            mutableMapOf<String,Any>().apply {
                 val values = arrayListOf("${getLocalTime()}000000","${model.content}")
                 this["stream"] = model.tags
                 this["values"] = arrayListOf(values)
             }
-            logArray.add(map)
-        }
+        }.toMutableList()
 
         val requestBodyStr = JSONObject().apply { put("streams",logArray) }.toString()
         logger.info("requestBody = $requestBodyStr")

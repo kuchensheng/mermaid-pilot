@@ -112,6 +112,7 @@
 
         <executions>
           <execution>
+            <id>${project.version}</id>
             <goals>
               <goal>attached</goal>
             </goals>
